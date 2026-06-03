@@ -6,22 +6,18 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "users")
-public class User {
-
+@Table(name = "teams")
+public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(unique = true, nullable = false)
-    private String username;
+    private String name;
+
+    @Column(unique = true, nullable = false)
+    private String shortName;
 
     @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false)
-    private int totalPoints = 0;
-
-    @Column(nullable = false)
-    private int groupStagePoints = 0;
+    private String groupName;
 }
