@@ -9,6 +9,9 @@ export const API_ENDPOINTS = {
     USERS: {
         LEADERBOARD: `${API_BASE_URL}/users/leaderboard`,
     },
+    PREDICTIONS: {
+        LIST: `${API_BASE_URL}/predictions`,
+    }
 } as const;
 
 export const COMMON_HEADERS: Record<string, string> = {
