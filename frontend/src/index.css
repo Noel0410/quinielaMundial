@@ -336,3 +336,52 @@ body {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Table Styles */
+.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.styled-table thead tr {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #d4af37; /* Dorado */
+  border-bottom: 2px solid var(--surface-border);
+}
+
+.styled-table th,
+.styled-table td {
+  padding: 12px 15px;
+}
+
+.styled-table tbody tr {
+  border-bottom: 1px solid var(--surface-border);
+  transition: background-color 0.2s ease;
+}
+
+.styled-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.styled-table tbody tr:last-of-type {
+  border-bottom: 2px solid var(--primary);
+}
+
+.rank-col {
+  font-weight: bold;
+  color: var(--text-muted);
+  width: 60px;
+}
+
+.rank-1 { color: #FFD700; } /* Gold */
+.rank-2 { color: #C0C0C0; } /* Silver */
+.rank-3 { color: #CD7F32; } /* Bronze */
+
+.points-col {
+  font-weight: 600;
+  color: var(--text-main);
+  text-align: right;
+}

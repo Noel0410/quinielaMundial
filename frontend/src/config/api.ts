@@ -6,6 +6,9 @@ export const API_ENDPOINTS = {
         LOGIN: `${API_BASE_URL}/auth/login`,
         SIGNUP: `${API_BASE_URL}/auth/signup`,
     },
+    USERS: {
+        LEADERBOARD: `${API_BASE_URL}/users/leaderboard`,
+    },
 } as const;
 
 export const COMMON_HEADERS: Record<string, string> = {

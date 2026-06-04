@@ -2,11 +2,15 @@ package com.quiniela.backend.model;
 
 import java.util.UUID;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Data
 @Entity
+@Getter
+@Setter
+@ToString
 @Table(name = "users")
+@NoArgsConstructor
 public class User {
 
     @Id
