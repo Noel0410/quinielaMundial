@@ -290,3 +290,49 @@ body {
   background: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.2);
 }
+
+/* Tabs Styles */
+.tabs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tab-list {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 1px solid var(--surface-border);
+  padding-bottom: 0.5rem;
+  overflow-x: auto;
+}
+
+.tab-item {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.tab-item:hover {
+  color: var(--text-main);
+}
+
+.tab-item.active {
+  color: #d4af37; /* Dorado para resaltar la pestaña activa */
+  border-bottom-color: #d4af37;
+}
+
+.tab-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Trophy } from 'lucide-react';
+import { Trophy, List, Activity, Calendar } from 'lucide-react';
+import Leaderboard from './Leaderboard';
+import Predictions from './Predictions';
+import Results from './Results';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
+  const [activeTab, setActiveTab] = useState<'leaderboard' | 'predictions' | 'results'>('leaderboard');
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'leaderboard':
+        return <Leaderboard />;
+      case 'predictions':
+        return <Predictions />;
+      case 'results':
+        return <Results />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="dashboard-container">
@@ -12,17 +29,42 @@ const Dashboard: React.FC = () => {
           <Trophy size={32} color="var(--primary)" />
           <h1>Quiniela Mundial 2026</h1>
         </div>
-        <button onClick={logout} className="btn-secondary">
-          Sign Out
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+            Hola, <strong style={{ color: 'var(--text-main)' }}>{user?.username}</strong>
+          </span>
+          <button onClick={logout} className="btn-secondary">
+            Cerrar Sesión
+          </button>
+        </div>
       </div>
 
-      <div className="glass-card" style={{ marginTop: '2rem' }}>
-        <h2>Welcome back, {user?.username}!</h2>
-        <p style={{ marginTop: '1rem', color: 'var(--text-muted)' }}>
-          You have successfully authenticated using JWT.
-          Your protected dashboard content will go here.
-        </p>
+      <div className="tabs-container">
+        <div className="tab-list">
+          <button
+            className={`tab-item ${activeTab === 'leaderboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('leaderboard')}
+          >
+            <List size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }} />
+            Tabla de Posiciones
+          </button>
+          <button
+            className={`tab-item ${activeTab === 'predictions' ? 'active' : ''}`}
+            onClick={() => setActiveTab('predictions')}
+          >
+            <Activity size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }} />
+            Predicciones
+          </button>
+          <button
+            className={`tab-item ${activeTab === 'results' ? 'active' : ''}`}
+            onClick={() => setActiveTab('results')}
+          >
+            <Calendar size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }} />
+            Resultados Reales
+          </button>
+        </div>
+        
+        {renderContent()}
       </div>
     </div>
   );
