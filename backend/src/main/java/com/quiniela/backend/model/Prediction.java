@@ -1,6 +1,5 @@
 package com.quiniela.backend.model;
 
-import java.sql.Timestamp;
 import java.util.UUID;
 
 import jakarta.persistence.*;
