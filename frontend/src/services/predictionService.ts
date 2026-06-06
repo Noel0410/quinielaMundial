@@ -9,6 +9,7 @@ export interface MatchPredictionDTO {
   predictedHomeGoals: number | null;
   predictedAwayGoals: number | null;
   isPredicted: boolean;
+  finished: boolean;
 }
 
 export const predictionService = {
@@ -18,5 +19,11 @@ export const predictionService = {
       headers: COMMON_HEADERS,
     });
     return response.data;
+  },
+
+  savePredictions: async (predictions: MatchPredictionDTO[]): Promise<void> => {
+    await axios.post(API_ENDPOINTS.PREDICTIONS.LIST, predictions, {
+      headers: COMMON_HEADERS,
+    });
   }
 };

@@ -28,4 +28,11 @@ public class User {
 
     @Column(nullable = false)
     private int groupStagePoints = 0;
+
+    @ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private java.util.Set<Room> rooms = new java.util.HashSet<>();
+
+    @Column(nullable = false)
+    private String role = "USER";
 }

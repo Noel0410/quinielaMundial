@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, ChevronLeft, Loader2 } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Loader2, Save } from 'lucide-react';
 import { predictionService, type MatchPredictionDTO } from '../services/predictionService';
 import { FLAGS, SHORT_NAME } from '../countries';
 
@@ -15,58 +15,155 @@ interface Group {
   matches: MatchPredictionDTO[];
 }
 
+interface TeamStats {
+  name: string;
+  flag: string;
+  p: number;
+  w: number;
+  d: number;
+  l: number;
+  gf: number;
+  ga: number;
+  gd: number;
+  pts: number;
+}
+
 const Predictions: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchPredictions = async () => {
-      try {
-        const data = await predictionService.getMyPredictions();
-
-        // Transform the flat matches list into groups
-        const groupsMap = new Map<string, Group>();
-
-        data.forEach(match => {
-          const groupId = match.groupName.replace('Grupo ', '').trim();
-
-          if (!groupsMap.has(groupId)) {
-            groupsMap.set(groupId, {
-              id: groupId,
-              name: match.groupName,
-              teams: [],
-              matches: []
-            });
-          }
-
-          const group = groupsMap.get(groupId)!;
-          group.matches.push(match);
-
-          // Add unique teams
-          if (!group.teams.find(t => t.name === match.homeTeamName)) {
-            group.teams.push({ name: match.homeTeamName, flag: FLAGS[match.homeTeamName] || '🏳️' });
-          }
-          if (!group.teams.find(t => t.name === match.awayTeamName)) {
-            group.teams.push({ name: match.awayTeamName, flag: FLAGS[match.awayTeamName] || '🏳️' });
-          }
-        });
-
-        // Convert map to sorted array
-        const sortedGroups = Array.from(groupsMap.values()).sort((a, b) => a.id.localeCompare(b.id));
-        setGroups(sortedGroups);
-
-      } catch (err) {
-        console.error('Error fetching predictions:', err);
-        setError('No se pudieron cargar los pronósticos.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPredictions();
   }, []);
+
+  const fetchPredictions = async () => {
+    try {
+      const data = await predictionService.getMyPredictions();
+
+      const groupsMap = new Map<string, Group>();
+      data.forEach(match => {
+        const groupId = match.groupName.replace('Grupo ', '').trim();
+        if (!groupsMap.has(groupId)) {
+          groupsMap.set(groupId, { id: groupId, name: match.groupName, teams: [], matches: [] });
+        }
+        const group = groupsMap.get(groupId)!;
+        group.matches.push({ ...match });
+
+        if (!group.teams.find(t => t.name === match.homeTeamName)) {
+          group.teams.push({ name: match.homeTeamName, flag: FLAGS[match.homeTeamName] || '🏳️' });
+        }
+        if (!group.teams.find(t => t.name === match.awayTeamName)) {
+          group.teams.push({ name: match.awayTeamName, flag: FLAGS[match.awayTeamName] || '🏳️' });
+        }
+      });
+
+      const sortedGroups = Array.from(groupsMap.values()).sort((a, b) => a.id.localeCompare(b.id));
+      setGroups(sortedGroups);
+    } catch (err) {
+      console.error('Error fetching predictions:', err);
+      setError('No se pudieron cargar los pronósticos.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoalChange = (matchId: string, type: 'home' | 'away', value: string) => {
+    const group = groups.find(g => g.id === selectedGroup);
+    const match = group?.matches.find(m => m.matchId === matchId);
+    if (match?.finished) {
+      alert('No es posible editar la predicción.');
+      return;
+    }
+
+    const numValue = value === '' ? null : parseInt(value, 10);
+    if (value !== '' && (isNaN(numValue as number) || (numValue as number) < 0)) return;
+
+    setGroups(prevGroups => prevGroups.map(g => {
+      if (g.id !== selectedGroup) return g;
+      return {
+        ...g,
+        matches: g.matches.map(m => {
+          if (m.matchId !== matchId) return m;
+          const updatedMatch = { ...m };
+          if (type === 'home') updatedMatch.predictedHomeGoals = numValue;
+          if (type === 'away') updatedMatch.predictedAwayGoals = numValue;
+          updatedMatch.isPredicted = updatedMatch.predictedHomeGoals !== null && updatedMatch.predictedAwayGoals !== null;
+          return updatedMatch;
+        })
+      };
+    }));
+  };
+
+  const handleSaveGroup = async () => {
+    const group = groups.find(g => g.id === selectedGroup);
+    if (!group) return;
+
+    setSaving(true);
+    try {
+      const predictionsToSave = group.matches.filter(m => m.predictedHomeGoals !== null && m.predictedAwayGoals !== null);
+      await predictionService.savePredictions(predictionsToSave);
+      alert('Predicciones guardadas exitosamente.');
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar predicciones.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const calculateStandings = (group: Group): TeamStats[] => {
+    const statsMap = new Map<string, TeamStats>();
+
+    group.teams.forEach(t => {
+      statsMap.set(t.name, { name: t.name, flag: t.flag, p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, gd: 0, pts: 0 });
+    });
+
+    group.matches.forEach(m => {
+      if (m.predictedHomeGoals !== null && m.predictedAwayGoals !== null) {
+        const hStats = statsMap.get(m.homeTeamName)!;
+        const aStats = statsMap.get(m.awayTeamName)!;
+        const hg = m.predictedHomeGoals;
+        const ag = m.predictedAwayGoals;
+
+        hStats.p += 1;
+        aStats.p += 1;
+        hStats.gf += hg;
+        hStats.ga += ag;
+        aStats.gf += ag;
+        aStats.ga += hg;
+
+        if (hg > ag) {
+          hStats.w += 1;
+          aStats.l += 1;
+          hStats.pts += 3;
+        } else if (hg < ag) {
+          aStats.w += 1;
+          hStats.l += 1;
+          aStats.pts += 3;
+        } else {
+          hStats.d += 1;
+          aStats.d += 1;
+          hStats.pts += 1;
+          aStats.pts += 1;
+        }
+      }
+    });
+
+    const standings = Array.from(statsMap.values());
+    standings.forEach(s => s.gd = s.gf - s.ga);
+
+    standings.sort((a, b) => {
+      if (b.pts !== a.pts) return b.pts - a.pts;
+      if (b.gd !== a.gd) return b.gd - a.gd;
+      if (b.gf !== a.gf) return b.gf - a.gf;
+      return a.name.localeCompare(b.name);
+    });
+
+    return standings;
+  };
 
   if (loading) {
     return (
@@ -77,25 +174,18 @@ const Predictions: React.FC = () => {
   }
 
   if (error) {
-    return (
-      <div className="tab-content glass-card">
-        <div className="error-message">{error}</div>
-      </div>
-    );
+    return <div className="tab-content glass-card"><div className="error-message">{error}</div></div>;
   }
 
   if (selectedGroup) {
     const group = groups.find(g => g.id === selectedGroup)!;
+    const standings = calculateStandings(group);
 
     return (
       <div className="tab-content glass-card">
         <div className="detail-header" onClick={() => setSelectedGroup(null)}>
-          <button className="back-btn">
-            <ChevronLeft size={20} />
-          </button>
-          <div className="group-letter" style={{ width: 40, height: 40, fontSize: '1.2rem' }}>
-            {group.id}
-          </div>
+          <button className="back-btn"><ChevronLeft size={20} /></button>
+          <div className="group-letter" style={{ width: 40, height: 40, fontSize: '1.2rem' }}>{group.id}</div>
           <div className="detail-header-info">
             <h2>{group.name}</h2>
             <p>Fase de Grupos</p>
@@ -110,23 +200,23 @@ const Predictions: React.FC = () => {
                 <span className="team-flag">{FLAGS[match.homeTeamName] || '🏳️'}</span>
                 <span>{SHORT_NAME[match.homeTeamName] || match.homeTeamName}</span>
               </div>
-
               <div className="match-inputs">
                 <input
                   type="text"
                   className="match-input"
                   maxLength={1}
-                  defaultValue={match.predictedHomeGoals ?? ''}
+                  value={match.predictedHomeGoals ?? ''}
+                  onChange={(e) => handleGoalChange(match.matchId, 'home', e.target.value)}
                 />
                 <span className="match-separator">-</span>
                 <input
                   type="text"
                   className="match-input"
                   maxLength={1}
-                  defaultValue={match.predictedAwayGoals ?? ''}
+                  value={match.predictedAwayGoals ?? ''}
+                  onChange={(e) => handleGoalChange(match.matchId, 'away', e.target.value)}
                 />
               </div>
-
               <div className="match-team right">
                 <span className="team-flag">{FLAGS[match.awayTeamName] || '🏳️'}</span>
                 <span>{SHORT_NAME[match.awayTeamName] || match.awayTeamName}</span>
@@ -135,7 +225,14 @@ const Predictions: React.FC = () => {
           ))}
         </div>
 
-        <h4 className="section-title">Tabla de Posiciones</h4>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem', marginBottom: '2rem' }}>
+          <button className="btn-primary" onClick={handleSaveGroup} disabled={saving} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            {saving ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={20} />}
+            Guardar Predicciones
+          </button>
+        </div>
+
+        <h4 className="section-title">Predicción del grupo</h4>
         <div style={{ overflowX: 'auto' }}>
           <table className="styled-table">
             <thead>
@@ -151,7 +248,7 @@ const Predictions: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {group.teams.map((team, idx) => (
+              {standings.map((team, idx) => (
                 <tr key={team.name}>
                   <td className={idx < 2 ? 'rank-1' : ''} style={{ color: idx < 2 ? '#FFD700' : 'var(--text-muted)' }}>
                     <div style={{
@@ -163,32 +260,22 @@ const Predictions: React.FC = () => {
                       {idx + 1}
                     </div>
                   </td>
-                  <td>
+                  <td style={{ fontWeight: idx < 2 ? 'bold' : 'normal', color: idx < 2 ? 'var(--text-main)' : 'var(--text-muted)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <span className="team-flag">{team.flag}</span>
                       <span>{team.name}</span>
                     </div>
                   </td>
-                  <td style={{ textAlign: 'center' }}>0</td>
-                  <td style={{ textAlign: 'center' }}>0</td>
-                  <td style={{ textAlign: 'center' }}>0</td>
-                  <td style={{ textAlign: 'center' }}>0</td>
-                  <td style={{ textAlign: 'center' }}>0</td>
-                  <td className="points-col">0</td>
+                  <td style={{ textAlign: 'center' }}>{team.p}</td>
+                  <td style={{ textAlign: 'center' }}>{team.w}</td>
+                  <td style={{ textAlign: 'center' }}>{team.d}</td>
+                  <td style={{ textAlign: 'center' }}>{team.l}</td>
+                  <td style={{ textAlign: 'center' }}>{team.gd > 0 ? `+${team.gd}` : team.gd}</td>
+                  <td className="points-col">{team.pts}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-        <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--wc-red)' }}></div>
-            Clasifica a 16avos
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#d4af37' }}></div>
-            Mejor tercero (posible)
-          </div>
         </div>
       </div>
     );
@@ -202,7 +289,6 @@ const Predictions: React.FC = () => {
       <div className="predictions-header">
         {totalPredictions}/{totalMatches} pronósticos cargados
       </div>
-
       <div className="groups-grid">
         {groups.map((group) => {
           const predictedInGroup = group.matches.filter(m => m.isPredicted).length;

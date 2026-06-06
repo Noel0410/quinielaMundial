@@ -1,6 +1,6 @@
 package com.quiniela.backend.model;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 import jakarta.persistence.*;
@@ -28,6 +28,6 @@ public class Prediction {
     @Column(nullable = false)
     private Integer awayTeamGoals;
 
-    @Column(nullable = false)
-    private Date limitPredictionTime;
+    @Column(nullable = true)
+    private Boolean closed = false;
 }

@@ -7,9 +7,11 @@ export interface UserLeaderboardResponse {
 }
 
 export const userService = {
-  getLeaderboard: async (): Promise<UserLeaderboardResponse[]> => {
+  getLeaderboard: async (roomCode?: string): Promise<UserLeaderboardResponse[]> => {
+    const params = roomCode ? { roomCode } : {};
     const response = await axios.get(API_ENDPOINTS.USERS.LEADERBOARD, {
       headers: COMMON_HEADERS,
+      params,
     });
     return response.data;
   }

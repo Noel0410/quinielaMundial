@@ -7,6 +7,7 @@ import com.quiniela.backend.model.User;
 import com.quiniela.backend.repository.MatchRepository;
 import com.quiniela.backend.repository.PredictionRepository;
 import com.quiniela.backend.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,8 +41,38 @@ public class PredictionService {
                     match.getHomeTeam().getGroupName(), // Asumiendo que homeTeam.groupName es el grupo del partido
                     predictionOpt.map(Prediction::getHomeTeamGoals).orElse(null),
                     predictionOpt.map(Prediction::getAwayTeamGoals).orElse(null),
-                    predictionOpt.isPresent()
-            );
+                    predictionOpt.isPresent(),
+                    predictionOpt.map(Prediction::getClosed).orElse(false));
         }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void savePredictions(String username, List<MatchPredictionDTO> predictionsDTO) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        List<Prediction> existingPredictions = predictionRepository.findByUser(user);
+
+        for (MatchPredictionDTO dto : predictionsDTO) {
+            if (dto.predictedHomeGoals() == null || dto.predictedAwayGoals() == null) {
+                continue;
+            }
+
+            Match match = matchRepository.findById(dto.matchId())
+                    .orElseThrow(() -> new RuntimeException("Match not found"));
+
+            Optional<Prediction> existingOpt = existingPredictions.stream()
+                    .filter(p -> p.getMatch().getId().equals(match.getId()))
+                    .findFirst();
+
+            Prediction prediction = existingOpt.orElse(new Prediction());
+            if (Boolean.TRUE.equals(prediction.getClosed())) {
+                continue;
+            }
+            prediction.setUser(user);
+            prediction.setMatch(match);
+            prediction.setHomeTeamGoals(dto.predictedHomeGoals());
+            prediction.setAwayTeamGoals(dto.predictedAwayGoals());
+
+            predictionRepository.save(prediction);
+        }
     }
 }

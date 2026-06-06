@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Trophy, List, Activity, Calendar } from 'lucide-react';
+import { Trophy, List, Activity } from 'lucide-react';
 import Leaderboard from './Leaderboard';
 import Predictions from './Predictions';
-import Results from './Results';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'leaderboard' | 'predictions' | 'results'>('leaderboard');
+  const [activeTab, setActiveTab] = useState<'leaderboard' | 'predictions'>('leaderboard');
 
   const renderContent = () => {
     switch (activeTab) {
@@ -15,8 +14,6 @@ const Dashboard: React.FC = () => {
         return <Leaderboard />;
       case 'predictions':
         return <Predictions />;
-      case 'results':
-        return <Results />;
       default:
         return null;
     }
@@ -33,7 +30,7 @@ const Dashboard: React.FC = () => {
           <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
             Hola, <strong style={{ color: 'var(--text-main)' }}>{user?.username}</strong>
           </span>
-          <button onClick={logout} className="btn-secondary">
+          <button onClick={logout} className="btn-logout">
             Cerrar Sesión
           </button>
         </div>
@@ -54,13 +51,6 @@ const Dashboard: React.FC = () => {
           >
             <Activity size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }} />
             Predicciones
-          </button>
-          <button
-            className={`tab-item ${activeTab === 'results' ? 'active' : ''}`}
-            onClick={() => setActiveTab('results')}
-          >
-            <Calendar size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }} />
-            Resultados Reales
           </button>
         </div>
         
