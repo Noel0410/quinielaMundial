@@ -50,4 +50,24 @@ export const SHORT_NAME: Record<string, string> = {
     'Portugal': 'POR', 'República Democrática del Congo': 'COD', 'Uzbekistán': 'UZB', 'Colombia': 'COL',
     // Grupo L
     'Inglaterra': 'ENG', 'Croacia': 'CRO', 'Ghana': 'GHA', 'Panamá': 'PAN'
-}
+};
+
+export const getMatchOrderIndex = (homeTeam: string, awayTeam: string) => {
+    const teams = Object.keys(FLAGS);
+    const homeIdx = teams.indexOf(homeTeam);
+    const awayIdx = teams.indexOf(awayTeam);
+    
+    if (homeIdx === -1 || awayIdx === -1) return 99;
+    
+    const h = homeIdx % 4;
+    const a = awayIdx % 4;
+    
+    if (h === 0 && a === 1) return 1;
+    if (h === 2 && a === 3) return 2;
+    if (h === 0 && a === 2) return 3;
+    if (h === 3 && a === 1) return 4;
+    if (h === 3 && a === 0) return 5;
+    if (h === 1 && a === 2) return 6;
+    
+    return 99;
+};

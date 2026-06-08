@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Lock, UploadCloud, Save, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import axios from 'axios';
 import { API_ENDPOINTS } from '../config/api';
-import { FLAGS, SHORT_NAME } from '../countries';
+import { FLAGS, SHORT_NAME, getMatchOrderIndex } from '../countries';
 import type { MatchPredictionDTO } from '../services/predictionService';
 
 interface Team {
@@ -79,7 +79,10 @@ const AdminPanel: React.FC = () => {
         }
       });
 
-      const sortedGroups = Array.from(groupsMap.values()).sort((a, b) => a.id.localeCompare(b.id));
+      const sortedGroups = Array.from(groupsMap.values()).map(g => {
+        g.matches.sort((a, b) => getMatchOrderIndex(a.homeTeamName, a.awayTeamName) - getMatchOrderIndex(b.homeTeamName, b.awayTeamName));
+        return g;
+      }).sort((a, b) => a.id.localeCompare(b.id));
       setGroups(sortedGroups);
     } catch (error) {
       console.error(error);

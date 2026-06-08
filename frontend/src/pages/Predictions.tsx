@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, Loader2, Save, Lock, CheckCircle2 } from 'lucide-react';
 import { predictionService, type MatchPredictionDTO } from '../services/predictionService';
-import { FLAGS, SHORT_NAME } from '../countries';
+import { FLAGS, SHORT_NAME, getMatchOrderIndex } from '../countries';
 
 interface Team {
   name: string;
@@ -61,7 +61,10 @@ const Predictions: React.FC = () => {
         }
       });
 
-      const sortedGroups = Array.from(groupsMap.values()).sort((a, b) => a.id.localeCompare(b.id));
+      const sortedGroups = Array.from(groupsMap.values()).map(g => {
+        g.matches.sort((a, b) => getMatchOrderIndex(a.homeTeamName, a.awayTeamName) - getMatchOrderIndex(b.homeTeamName, b.awayTeamName));
+        return g;
+      }).sort((a, b) => a.id.localeCompare(b.id));
       setGroups(sortedGroups);
     } catch (err) {
       console.error('Error fetching predictions:', err);
