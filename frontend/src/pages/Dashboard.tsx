@@ -4,11 +4,12 @@ import { Trophy, List, Activity } from 'lucide-react';
 import Leaderboard from './Leaderboard';
 import Predictions from './Predictions';
 import AdminPanel from './AdminPanel';
-import { Settings } from 'lucide-react';
+import HowToPlay from './HowToPlay';
+import { Settings, Info } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'leaderboard' | 'predictions' | 'admin'>('leaderboard');
+  const [activeTab, setActiveTab] = useState<'leaderboard' | 'predictions' | 'admin' | 'how-to-play'>('leaderboard');
 
   const renderContent = () => {
     switch (activeTab) {
@@ -18,6 +19,8 @@ const Dashboard: React.FC = () => {
         return <Predictions />;
       case 'admin':
         return <AdminPanel />;
+      case 'how-to-play':
+        return <HowToPlay />;
       default:
         return null;
     }
@@ -66,6 +69,14 @@ const Dashboard: React.FC = () => {
               Administración
             </button>
           )}
+
+          <button
+            className={`tab-item ${activeTab === 'how-to-play' ? 'active' : ''}`}
+            onClick={() => setActiveTab('how-to-play')}
+          >
+            <Info size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }} />
+            Cómo jugar
+          </button>
         </div>
         
         {renderContent()}
