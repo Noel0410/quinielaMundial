@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.quiniela.backend.model.Prediction;
 import com.quiniela.backend.model.User;
+import com.quiniela.backend.model.Match;
 import java.sql.Timestamp;
 import java.util.UUID;
 import java.util.List;
@@ -18,4 +19,6 @@ public interface PredictionRepository extends JpaRepository<Prediction, UUID> {
     @Modifying
     @Query("UPDATE Prediction p SET p.limitDate = :limitDate WHERE p.match.stage = :stage")
     void updateLimitDateByStage(@Param("stage") String stage, @Param("limitDate") Timestamp limitDate);
+
+    List<Prediction> findByMatch(Match match);
 }

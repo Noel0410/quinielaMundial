@@ -31,4 +31,7 @@ public class Prediction {
 
     @Column(nullable = true)
     private Timestamp limitDate = null;
+
+    @Column(nullable = false)
+    private Integer points = 0;
 }
