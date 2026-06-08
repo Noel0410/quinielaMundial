@@ -5,10 +5,13 @@ import com.quiniela.backend.services.PredictionService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -25,10 +28,29 @@ public class PredictionController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> savePredictions(
+    public ResponseEntity<?> savePredictions(
             @RequestBody List<MatchPredictionDTO> predictions,
             Authentication authentication) {
-        predictionService.savePredictions(authentication.getName(), predictions);
+        try {
+            predictionService.savePredictions(authentication.getName(), predictions);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/limit-date/{stage}")
+    public ResponseEntity<Void> setLimitDateForStage(
+            @PathVariable String stage,
+            @RequestBody Map<String, String> payload,
+            Authentication authentication) {
+        String limitDateStr = payload.get("limitDate");
+        if (limitDateStr != null && !limitDateStr.isEmpty()) {
+            limitDateStr = limitDateStr.replace("T", " ") + ":00";
+            Timestamp limitDate = Timestamp.valueOf(limitDateStr);
+            predictionService.setLimitDateForStage(stage, limitDate);
+        }
         return ResponseEntity.ok().build();
     }
 }

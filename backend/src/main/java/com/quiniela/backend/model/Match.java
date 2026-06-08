@@ -1,5 +1,6 @@
 package com.quiniela.backend.model;
 
+import java.sql.Timestamp;
 import java.util.UUID;
 
 import jakarta.persistence.*;
@@ -29,4 +30,7 @@ public class Match {
 
     @Column
     private Integer awayTeamGoals;
+
+    @Column(nullable = true)
+    private Timestamp limitDate;
 }

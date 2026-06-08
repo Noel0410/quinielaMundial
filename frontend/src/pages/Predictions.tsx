@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, ChevronLeft, Loader2, Save } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Loader2, Save, Lock, CheckCircle2 } from 'lucide-react';
 import { predictionService, type MatchPredictionDTO } from '../services/predictionService';
 import { FLAGS, SHORT_NAME } from '../countries';
 
@@ -34,6 +34,7 @@ const Predictions: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPredictions();
@@ -105,10 +106,11 @@ const Predictions: React.FC = () => {
     try {
       const predictionsToSave = group.matches.filter(m => m.predictedHomeGoals !== null && m.predictedAwayGoals !== null);
       await predictionService.savePredictions(predictionsToSave);
-      alert('Predicciones guardadas exitosamente.');
-    } catch (err) {
+      setSuccessMsg('¡Predicciones guardadas correctamente!');
+      setTimeout(() => setSuccessMsg(null), 3000);
+    } catch (err: any) {
       console.error(err);
-      alert('Error al guardar predicciones.');
+      alert(err.response?.data?.message || 'Error al guardar predicciones.');
     } finally {
       setSaving(false);
     }
@@ -195,7 +197,7 @@ const Predictions: React.FC = () => {
         <h4 className="section-title">Partidos</h4>
         <div className="matches-list">
           {group.matches.map((match) => (
-            <div key={match.matchId} className="match-row">
+            <div key={match.matchId} className="match-row" style={{ position: 'relative' }}>
               <div className="match-team">
                 <span className="team-flag">{FLAGS[match.homeTeamName] || '🏳️'}</span>
                 <span>{SHORT_NAME[match.homeTeamName] || match.homeTeamName}</span>
@@ -207,6 +209,8 @@ const Predictions: React.FC = () => {
                   maxLength={1}
                   value={match.predictedHomeGoals ?? ''}
                   onChange={(e) => handleGoalChange(match.matchId, 'home', e.target.value)}
+                  disabled={match.finished}
+                  style={match.finished ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                 />
                 <span className="match-separator">-</span>
                 <input
@@ -215,15 +219,43 @@ const Predictions: React.FC = () => {
                   maxLength={1}
                   value={match.predictedAwayGoals ?? ''}
                   onChange={(e) => handleGoalChange(match.matchId, 'away', e.target.value)}
+                  disabled={match.finished}
+                  style={match.finished ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                 />
               </div>
               <div className="match-team right">
                 <span className="team-flag">{FLAGS[match.awayTeamName] || '🏳️'}</span>
                 <span>{SHORT_NAME[match.awayTeamName] || match.awayTeamName}</span>
               </div>
+              {match.finished && (
+                <div style={{ 
+                  position: 'absolute', 
+                  right: '1rem', 
+                  top: '50%', 
+                  transform: 'translateY(-50%)', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '0.25rem', 
+                  color: 'var(--wc-red)', 
+                  fontSize: '0.8rem', 
+                  fontWeight: 'bold',
+                  background: 'rgba(211, 47, 47, 0.1)',
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '4px'
+                }}>
+                  <Lock size={14} /> Cerrado
+                </div>
+              )}
             </div>
           ))}
         </div>
+
+        {successMsg && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#10B981', background: 'rgba(16, 185, 129, 0.1)', padding: '0.75rem', borderRadius: '8px', marginTop: '1rem', marginBottom: '1rem' }}>
+            <CheckCircle2 size={20} />
+            {successMsg}
+          </div>
+        )}
 
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem', marginBottom: '2rem' }}>
           <button className="btn-primary" onClick={handleSaveGroup} disabled={saving} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>

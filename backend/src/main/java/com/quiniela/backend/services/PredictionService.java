@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,7 +43,8 @@ public class PredictionService {
                     predictionOpt.map(Prediction::getHomeTeamGoals).orElse(null),
                     predictionOpt.map(Prediction::getAwayTeamGoals).orElse(null),
                     predictionOpt.isPresent(),
-                    predictionOpt.map(Prediction::getClosed).orElse(false));
+                    match.getLimitDate() != null
+                            && new Timestamp(System.currentTimeMillis()).after(match.getLimitDate()));
         }).collect(Collectors.toList());
     }
 
@@ -64,15 +66,28 @@ public class PredictionService {
                     .findFirst();
 
             Prediction prediction = existingOpt.orElse(new Prediction());
-            if (Boolean.TRUE.equals(prediction.getClosed())) {
-                continue;
+            if (match.getLimitDate() != null && new Timestamp(System.currentTimeMillis()).after(match.getLimitDate())) {
+                throw new RuntimeException(
+                        "No se puede crear ni modificar la predicción porque la fecha límite ya ha pasado para el partido "
+                                + match.getHomeTeam().getName() + " vs " + match.getAwayTeam().getName());
             }
             prediction.setUser(user);
             prediction.setMatch(match);
             prediction.setHomeTeamGoals(dto.predictedHomeGoals());
             prediction.setAwayTeamGoals(dto.predictedAwayGoals());
+            prediction.setLimitDate(match.getLimitDate());
 
             predictionRepository.save(prediction);
         }
+    }
+
+    @Transactional
+    public void setLimitDateForStage(String stage, Timestamp limitDate) {
+        List<Match> matches = matchRepository.findByStage(stage);
+        for (Match match : matches) {
+            match.setLimitDate(limitDate);
+            matchRepository.save(match);
+        }
+        predictionRepository.updateLimitDateByStage(stage, limitDate);
     }
 }
