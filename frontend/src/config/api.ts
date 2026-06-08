@@ -1,4 +1,4 @@
-const rawApiUrl = import.meta.env.VITE_API_URL || "http://192.168.1.39:8080/api";
+const rawApiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 export const API_BASE_URL = rawApiUrl.replace(/\/$/, "");
 
 export const API_ENDPOINTS = {

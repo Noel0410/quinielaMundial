@@ -4,11 +4,12 @@ import axios from 'axios';
 interface User {
   username: string;
   token: string;
+  role: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (token: string, username: string) => void;
+  login: (token: string, username: string, role: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -23,23 +24,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Check if user is logged in
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
+    const role = localStorage.getItem('role') || 'USER';
     if (token && username) {
-      setUser({ token, username });
+      setUser({ token, username, role });
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     }
     setLoading(false);
   }, []);
 
-  const login = React.useCallback((token: string, username: string) => {
+  const login = React.useCallback((token: string, username: string, role: string) => {
     localStorage.setItem('token', token);
     localStorage.setItem('username', username);
-    setUser({ token, username });
+    localStorage.setItem('role', role);
+    setUser({ token, username, role });
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }, []);
 
   const logout = React.useCallback(() => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    localStorage.removeItem('role');
     setUser(null);
     delete axios.defaults.headers.common['Authorization'];
   }, []);

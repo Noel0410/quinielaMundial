@@ -41,7 +41,7 @@ const Signup: React.FC = () => {
         username,
         password,
       });
-      login(data.token, data.username);
+      login(data.token, data.username, data.role);
       navigate('/');
 
     } catch (err: any) {

@@ -3,10 +3,12 @@ import { useAuth } from '../context/AuthContext';
 import { Trophy, List, Activity } from 'lucide-react';
 import Leaderboard from './Leaderboard';
 import Predictions from './Predictions';
+import AdminPanel from './AdminPanel';
+import { Settings } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState<'leaderboard' | 'predictions'>('leaderboard');
+  const [activeTab, setActiveTab] = useState<'leaderboard' | 'predictions' | 'admin'>('leaderboard');
 
   const renderContent = () => {
     switch (activeTab) {
@@ -14,6 +16,8 @@ const Dashboard: React.FC = () => {
         return <Leaderboard />;
       case 'predictions':
         return <Predictions />;
+      case 'admin':
+        return <AdminPanel />;
       default:
         return null;
     }
@@ -52,6 +56,16 @@ const Dashboard: React.FC = () => {
             <Activity size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }} />
             Predicciones
           </button>
+          
+          {user?.role === 'ADMIN' && (
+            <button
+              className={`tab-item ${activeTab === 'admin' ? 'active' : ''}`}
+              onClick={() => setActiveTab('admin')}
+            >
+              <Settings size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }} />
+              Administración
+            </button>
+          )}
         </div>
         
         {renderContent()}

@@ -24,8 +24,8 @@ const Login: React.FC = () => {
         password,
       });
 
-      const { token, username: resUsername } = data;
-      login(token, resUsername);
+      const { token, username: resUsername, role } = data;
+      login(token, resUsername, role);
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Credenciales invalidas o error del servidor.');

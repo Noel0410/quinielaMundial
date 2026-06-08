@@ -33,6 +33,7 @@ public class User {
     @ToString.Exclude
     private java.util.Set<Room> rooms = new java.util.HashSet<>();
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role = "USER";
+    private Role role = Role.USER;
 }
