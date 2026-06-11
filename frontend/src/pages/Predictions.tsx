@@ -200,7 +200,7 @@ const Predictions: React.FC = () => {
         <h4 className="section-title">Partidos</h4>
         <div className="matches-list">
           {group.matches.map((match) => (
-            <div key={match.matchId} className="match-row" style={{ position: 'relative' }}>
+            <div key={match.matchId} className="match-row" style={{ position: 'relative', ...(match.finished ? { boxShadow: '0 4px 12px rgba(228, 0, 43, 0.2)', border: '1px solid rgba(228, 0, 43, 0.3)', backgroundColor: 'rgba(228, 0, 43, 0.08)' } : {}) }}>
               <div className="match-team">
                 <span className="team-flag">{FLAGS[match.homeTeamName] || '🏳️'}</span>
                 <span>{SHORT_NAME[match.homeTeamName] || match.homeTeamName}</span>
