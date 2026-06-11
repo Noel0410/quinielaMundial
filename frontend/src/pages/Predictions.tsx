@@ -94,7 +94,7 @@ const Predictions: React.FC = () => {
           const updatedMatch = { ...m };
           if (type === 'home') updatedMatch.predictedHomeGoals = numValue;
           if (type === 'away') updatedMatch.predictedAwayGoals = numValue;
-          updatedMatch.isPredicted = updatedMatch.predictedHomeGoals !== null && updatedMatch.predictedAwayGoals !== null;
+          updatedMatch.isPredicted = updatedMatch.predictedHomeGoals != null && updatedMatch.predictedAwayGoals != null;
           return updatedMatch;
         })
       };
@@ -107,7 +107,7 @@ const Predictions: React.FC = () => {
 
     setSaving(true);
     try {
-      const predictionsToSave = group.matches.filter(m => m.predictedHomeGoals !== null && m.predictedAwayGoals !== null);
+      const predictionsToSave = group.matches.filter(m => m.predictedHomeGoals != null && m.predictedAwayGoals != null);
       await predictionService.savePredictions(predictionsToSave);
       setSuccessMsg('¡Predicciones guardadas correctamente!');
       setTimeout(() => setSuccessMsg(null), 3000);
@@ -127,11 +127,11 @@ const Predictions: React.FC = () => {
     });
 
     group.matches.forEach(m => {
-      if (m.predictedHomeGoals !== null && m.predictedAwayGoals !== null) {
+      if (m.predictedHomeGoals != null && m.predictedAwayGoals != null) {
         const hStats = statsMap.get(m.homeTeamName)!;
         const aStats = statsMap.get(m.awayTeamName)!;
-        const hg = m.predictedHomeGoals;
-        const ag = m.predictedAwayGoals;
+        const hg = Number(m.predictedHomeGoals);
+        const ag = Number(m.predictedAwayGoals);
 
         hStats.p += 1;
         aStats.p += 1;
