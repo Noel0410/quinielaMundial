@@ -231,22 +231,8 @@ const Predictions: React.FC = () => {
                 <span>{SHORT_NAME[match.awayTeamName] || match.awayTeamName}</span>
               </div>
               {match.finished && (
-                <div style={{ 
-                  position: 'absolute', 
-                  right: '1rem', 
-                  top: '50%', 
-                  transform: 'translateY(-50%)', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '0.25rem', 
-                  color: 'var(--wc-red)', 
-                  fontSize: '0.8rem', 
-                  fontWeight: 'bold',
-                  background: 'rgba(211, 47, 47, 0.1)',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '4px'
-                }}>
-                  <Lock size={14} /> Cerrado
+                <div className="closed-badge">
+                  <Lock size={14} /> <span className="closed-text">Cerrado</span>
                 </div>
               )}
             </div>

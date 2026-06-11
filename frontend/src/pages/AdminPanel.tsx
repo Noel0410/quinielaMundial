@@ -274,7 +274,7 @@ const AdminPanel: React.FC = () => {
           <h4 className="section-title">Partidos</h4>
           <div className="matches-list">
             {group.matches.map((match) => (
-              <div key={match.matchId} className="match-row" style={{ display: 'flex', alignItems: 'center' }}>
+              <div key={match.matchId} className="match-row" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem' }}>
                 <div className="match-team">
                   <span className="team-flag">{FLAGS[match.homeTeamName] || '🏳️'}</span>
                   <span>{SHORT_NAME[match.homeTeamName] || match.homeTeamName}</span>
@@ -300,7 +300,7 @@ const AdminPanel: React.FC = () => {
                   <span className="team-flag">{FLAGS[match.awayTeamName] || '🏳️'}</span>
                   <span>{SHORT_NAME[match.awayTeamName] || match.awayTeamName}</span>
                 </div>
-                <div style={{ marginLeft: '1rem' }}>
+                <div style={{ flexBasis: '100%', display: 'flex', justifyContent: 'center', marginTop: '0.5rem' }}>
                   <button
                     className="btn-primary"
                     onClick={() => handleSaveResult(match)}

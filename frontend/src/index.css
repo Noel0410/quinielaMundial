@@ -776,3 +776,60 @@ body {
 .modal-close:hover {
   color: var(--wc-red);
 }
+
+/* Mobile Responsive Improvements */
+.closed-badge {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--wc-red);
+  font-size: 0.8rem;
+  font-weight: bold;
+  background: rgba(211, 47, 47, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+  .closed-badge {
+    top: 0;
+    right: 50%;
+    transform: translate(50%, -50%);
+    font-size: 0.75rem;
+    padding: 0.1rem 0.5rem;
+    background: var(--surface);
+    border: 1px solid var(--wc-red);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .closed-text {
+    display: none;
+  }
+
+  .match-row {
+    padding: 1rem 0.5rem;
+    margin-top: 0.5rem; /* Space for the top badge */
+  }
+
+  .match-team {
+    width: auto;
+    flex: 1;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+  }
+
+  .match-inputs {
+    gap: 0.25rem;
+  }
+
+  .match-input {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+    padding: 0;
+  }
+}
