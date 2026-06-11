@@ -12,6 +12,7 @@ export const API_ENDPOINTS = {
     PREDICTIONS: {
         LIST: `${API_BASE_URL}/predictions`,
         LIMIT_DATE: (stage: string) => `${API_BASE_URL}/predictions/limit-date/${stage}`,
+        LIMIT_DATE_MATCH: (matchId: string) => `${API_BASE_URL}/predictions/limit-date/match/${matchId}`,
     },
     MATCHES: {
         LIST: `${API_BASE_URL}/matches`,

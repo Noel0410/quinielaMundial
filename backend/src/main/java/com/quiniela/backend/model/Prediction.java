@@ -28,10 +28,9 @@ public class Prediction {
     @Column(nullable = false)
     private Integer awayTeamGoals;
 
-
     @Column(nullable = true)
     private Timestamp limitDate = null;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer points = 0;
 }

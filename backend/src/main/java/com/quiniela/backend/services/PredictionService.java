@@ -90,4 +90,18 @@ public class PredictionService {
         }
         predictionRepository.updateLimitDateByStage(stage, limitDate);
     }
+
+    @Transactional
+    public void setLimitDateForMatch(java.util.UUID matchId, Timestamp limitDate) {
+        Match match = matchRepository.findById(matchId)
+                .orElseThrow(() -> new RuntimeException("Match not found"));
+        match.setLimitDate(limitDate);
+        matchRepository.save(match);
+
+        List<Prediction> predictions = predictionRepository.findByMatch(match);
+        for (Prediction p : predictions) {
+            p.setLimitDate(limitDate);
+        }
+        predictionRepository.saveAll(predictions);
+    }
 }

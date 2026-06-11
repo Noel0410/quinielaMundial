@@ -28,6 +28,11 @@ const AdminPanel: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
   const [savingMatches, setSavingMatches] = useState<Record<string, boolean>>({});
 
+  const [limitMode, setLimitMode] = useState<'stage' | 'match'>('stage');
+  const [showLimitMatches, setShowLimitMatches] = useState(false);
+  const [matchLimitDates, setMatchLimitDates] = useState<Record<string, string>>({});
+  const [savingLimitMatches, setSavingLimitMatches] = useState<Record<string, boolean>>({});
+
   const STAGES = [
     'Fase de Grupos',
     'Dieciseisavos de Final',
@@ -53,6 +58,24 @@ const AdminPanel: React.FC = () => {
       alert('Error al actualizar la fecha límite.');
     } finally {
       setLoadingLimit(false);
+    }
+  };
+
+  const handleSetMatchLimit = async (matchId: string) => {
+    const date = matchLimitDates[matchId];
+    if (!date) {
+      alert('Por favor selecciona una fecha y hora.');
+      return;
+    }
+    setSavingLimitMatches(prev => ({ ...prev, [matchId]: true }));
+    try {
+      await axios.post(API_ENDPOINTS.PREDICTIONS.LIMIT_DATE_MATCH(matchId), { limitDate: date });
+      alert('Fecha límite actualizada con éxito para el partido.');
+    } catch (error) {
+      console.error(error);
+      alert('Error al actualizar la fecha límite del partido.');
+    } finally {
+      setSavingLimitMatches(prev => ({ ...prev, [matchId]: false }));
     }
   };
 
@@ -130,6 +153,101 @@ const AdminPanel: React.FC = () => {
       setSavingMatches(prev => ({ ...prev, [match.matchId]: false }));
     }
   };
+
+  if (showLimitMatches) {
+    if (loadingResults) {
+      return (
+        <div className="tab-content glass-card" style={{ display: 'flex', justifyContent: 'center', padding: '4rem', marginTop: '2rem' }}>
+          <Loader2 size={32} color="var(--primary)" style={{ animation: 'spin 1s linear infinite' }} />
+        </div>
+      );
+    }
+
+    if (selectedGroup) {
+      const group = groups.find(g => g.id === selectedGroup)!;
+      return (
+        <div className="tab-content glass-card" style={{ marginTop: '2rem' }}>
+          <div className="detail-header" onClick={() => setSelectedGroup(null)} style={{ cursor: 'pointer' }}>
+            <button className="back-btn"><ChevronLeft size={20} /></button>
+            <div className="group-letter" style={{ width: 40, height: 40, fontSize: '1.2rem' }}>{group.id}</div>
+            <div className="detail-header-info">
+              <h2>{group.name}</h2>
+              <p>Configurar Límite por Partido</p>
+            </div>
+          </div>
+
+          <h4 className="section-title">Partidos</h4>
+          <div className="matches-list">
+            {group.matches.map((match) => (
+              <div key={match.matchId} className="match-row" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                <div className="match-team" style={{ flex: 1 }}>
+                  <span className="team-flag">{FLAGS[match.homeTeamName] || '🏳️'}</span>
+                  <span>{SHORT_NAME[match.homeTeamName] || match.homeTeamName}</span>
+                </div>
+                <div className="match-team right" style={{ flex: 1 }}>
+                  <span>{SHORT_NAME[match.awayTeamName] || match.awayTeamName}</span>
+                  <span className="team-flag">{FLAGS[match.awayTeamName] || '🏳️'}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 2, justifyContent: 'flex-end' }}>
+                  <input
+                    type="datetime-local"
+                    value={matchLimitDates[match.matchId] || ''}
+                    onChange={(e) => setMatchLimitDates(prev => ({ ...prev, [match.matchId]: e.target.value }))}
+                    style={{
+                      padding: '0.5rem',
+                      borderRadius: '8px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      border: '1px solid var(--surface-border)',
+                      color: 'var(--text-main)',
+                      colorScheme: 'dark'
+                    }}
+                  />
+                  <button
+                    className="btn-primary"
+                    onClick={() => handleSetMatchLimit(match.matchId)}
+                    disabled={savingLimitMatches[match.matchId]}
+                    style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                  >
+                    {savingLimitMatches[match.matchId] ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={16} />}
+                    Guardar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="tab-content glass-card" style={{ marginTop: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '2rem' }}>
+          <button className="back-btn" onClick={() => setShowLimitMatches(false)} style={{ marginRight: '1rem' }}><ChevronLeft size={20} /></button>
+          <h2 style={{ margin: 0 }}>Selecciona un Grupo/Fase</h2>
+        </div>
+        <div className="groups-grid">
+          {groups.map((group) => {
+            return (
+              <div key={group.id} className="group-card" onClick={() => setSelectedGroup(group.id)}>
+                <div className="group-card-top">
+                  <div className="group-letter">{group.id}</div>
+                  <ChevronRight className="group-arrow" size={20} />
+                </div>
+                <div className="group-teams">
+                  {group.teams.map(team => (
+                    <div key={team.name} className="team-row">
+                      <span className="team-flag">{team.flag}</span>
+                      <span>{team.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
 
   if (showResults) {
     if (loadingResults) {
@@ -244,51 +362,79 @@ const AdminPanel: React.FC = () => {
             Establece la fecha y hora límite para las predicciones de una etapa. Esto actualizará los pronósticos existentes y las nuevas predicciones guardadas usarán este límite.
           </p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
-            <select
-              value={selectedStage}
-              onChange={(e) => setSelectedStage(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid var(--surface-border)',
-                color: 'var(--text-main)'
-              }}
-            >
-              {STAGES.map(stage => (
-                <option key={stage} value={stage} style={{ background: '#1a1a2e' }}>
-                  {stage}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="datetime-local"
-              value={limitDate}
-              onChange={(e) => setLimitDate(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid var(--surface-border)',
-                color: 'var(--text-main)',
-                colorScheme: 'dark'
-              }}
-            />
+          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+            <button 
+              className={`btn-${limitMode === 'stage' ? 'primary' : 'secondary'}`} 
+              style={{ flex: 1, padding: '0.5rem' }}
+              onClick={() => setLimitMode('stage')}
+            >Por Etapa</button>
+            <button 
+              className={`btn-${limitMode === 'match' ? 'primary' : 'secondary'}`} 
+              style={{ flex: 1, padding: '0.5rem' }}
+              onClick={() => setLimitMode('match')}
+            >Por Partido</button>
           </div>
 
-          <button
-            className="btn-primary"
-            style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
-            onClick={handleSetLimit}
-            disabled={loadingLimit}
-          >
-            {loadingLimit ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={20} />}
-            Guardar Límite
-          </button>
+          {limitMode === 'stage' ? (
+            <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
+                <select
+                  value={selectedStage}
+                  onChange={(e) => setSelectedStage(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '8px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid var(--surface-border)',
+                    color: 'var(--text-main)'
+                  }}
+                >
+                  {STAGES.map(stage => (
+                    <option key={stage} value={stage} style={{ background: '#1a1a2e' }}>
+                      {stage}
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  type="datetime-local"
+                  value={limitDate}
+                  onChange={(e) => setLimitDate(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    borderRadius: '8px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid var(--surface-border)',
+                    color: 'var(--text-main)',
+                    colorScheme: 'dark'
+                  }}
+                />
+              </div>
+
+              <button
+                className="btn-primary"
+                style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem' }}
+                onClick={handleSetLimit}
+                disabled={loadingLimit}
+              >
+                {loadingLimit ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={20} />}
+                Guardar Límite
+              </button>
+            </>
+          ) : (
+            <button
+              className="btn-primary"
+              style={{ width: '100%' }}
+              onClick={() => {
+                setShowLimitMatches(true);
+                fetchMatches();
+              }}
+            >
+              Seleccionar Partido
+            </button>
+          )}
         </div>
 
         <div className="glass-card" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>

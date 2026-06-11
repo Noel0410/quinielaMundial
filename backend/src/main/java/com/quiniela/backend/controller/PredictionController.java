@@ -53,4 +53,19 @@ public class PredictionController {
         }
         return ResponseEntity.ok().build();
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/limit-date/match/{matchId}")
+    public ResponseEntity<Void> setLimitDateForMatch(
+            @PathVariable java.util.UUID matchId,
+            @RequestBody Map<String, String> payload,
+            Authentication authentication) {
+        String limitDateStr = payload.get("limitDate");
+        if (limitDateStr != null && !limitDateStr.isEmpty()) {
+            limitDateStr = limitDateStr.replace("T", " ") + ":00";
+            Timestamp limitDate = Timestamp.valueOf(limitDateStr);
+            predictionService.setLimitDateForMatch(matchId, limitDate);
+        }
+        return ResponseEntity.ok().build();
+    }
 }
