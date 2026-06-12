@@ -1,35 +1,36 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/authService';
-import { Trophy, Eye, EyeOff } from 'lucide-react';
+import { Key, Eye, EyeOff } from 'lucide-react';
 
-const Login: React.FC = () => {
+const ForgotPassword: React.FC = () => {
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
-      const data = await authService.login({
+      await authService.resetPassword({
         username,
-        password,
+        newPassword,
       });
 
-      const { token, username: resUsername, role } = data;
-      login(token, resUsername, role);
-      navigate('/');
+      setSuccess('Contraseña restablecida exitosamente. Redirigiendo al login...');
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Credenciales invalidas o error del servidor.');
+      setError(err.response?.data?.message || 'Error al restablecer la contraseña.');
     } finally {
       setLoading(false);
     }
@@ -39,17 +40,18 @@ const Login: React.FC = () => {
     <div className="auth-container">
       <div style={{ width: '100%', maxWidth: '400px' }}>
         <div className="auth-top-header">
-          <div className="auth-top-subtitle">
-            <Trophy size={16} color="#d4af37" />
+          <div className="auth-top-subtitle" style={{ color: 'var(--primary)' }}>
+            <Key size={16} color="var(--primary)" />
             FIFA WORLD CUP 2026
           </div>
           <div className="auth-header">
-            <h1>Iniciar sesión</h1>
+            <h1>Recuperar contraseña</h1>
           </div>
         </div>
 
-        <div className="glass-card">
+        <div className="glass-card" style={{ borderColor: 'rgba(42, 57, 141, 0.4)', boxShadow: '0 8px 32px rgba(42, 57, 141, 0.15)' }}>
           {error && <div className="error-message" style={{ marginBottom: '1rem' }}>{error}</div>}
+          {success && <div className="success-message" style={{ marginBottom: '1rem', color: '#4ade80', background: 'rgba(74, 222, 128, 0.1)', padding: '0.75rem', borderRadius: '8px', border: '1px solid rgba(74, 222, 128, 0.2)' }}>{success}</div>}
 
           <form onSubmit={handleSubmit} className="form-group" style={{ gap: '1.25rem' }}>
             <div className="form-group">
@@ -60,17 +62,17 @@ const Login: React.FC = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                placeholder="Nombre de usuario"
+                placeholder="Ingresa tu usuario"
               />
             </div>
             <div className="form-group">
-              <label htmlFor="password">Contraseña</label>
+              <label htmlFor="newPassword">Nueva contraseña</label>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <input
                   type={showPassword ? "text" : "password"}
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  id="newPassword"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                   required
                   placeholder="••••••••"
                   style={{ width: '100%', paddingRight: '2.5rem' }}
@@ -84,19 +86,13 @@ const Login: React.FC = () => {
                 </button>
               </div>
             </div>
-            <button type="submit" className="btn-red" disabled={loading}>
-              {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+            <button type="submit" className="btn-primary" disabled={loading} style={{ width: '100%', marginTop: '0.5rem' }}>
+              {loading ? 'Restableciendo...' : 'Cambiar contraseña'}
             </button>
           </form>
 
-          <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-            <Link to="/forgot-password" style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-              ¿Olvidaste tu contraseña?
-            </Link>
-          </div>
-
           <div className="auth-footer">
-            ¿No tienes cuenta? <Link to="/signup">Crear cuenta</Link>
+            <Link to="/login">Volver al inicio de sesión</Link>
           </div>
         </div>
       </div>
@@ -104,4 +100,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;

@@ -4,6 +4,7 @@ import com.quiniela.backend.config.security.JwtUtil;
 import com.quiniela.backend.dto.JwtResponse;
 import com.quiniela.backend.dto.LoginRequest;
 import com.quiniela.backend.dto.MessageResponse;
+import com.quiniela.backend.dto.ResetPasswordRequest;
 import com.quiniela.backend.dto.SignupRequest;
 import com.quiniela.backend.model.User;
 import com.quiniela.backend.repository.UserRepository;
@@ -70,5 +71,21 @@ public class AuthController {
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        User user = userRepository.findByUsername(request.getUsername()).orElse(null);
+        
+        if (user == null) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Usuario no encontrado."));
+        }
+
+        user.setPassword(encoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(new MessageResponse("Contraseña actualizada exitosamente!"));
     }
 }

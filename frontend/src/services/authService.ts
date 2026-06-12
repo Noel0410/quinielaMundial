@@ -13,5 +13,11 @@ export const authService = {
       headers: COMMON_HEADERS,
     });
     return response.data;
+  },
+  resetPassword: async (data: Record<string, string>) => {
+    const response = await axios.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data, {
+      headers: COMMON_HEADERS,
+    });
+    return response.data;
   }
 };
