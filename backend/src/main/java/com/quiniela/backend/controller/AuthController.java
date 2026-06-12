@@ -41,7 +41,7 @@ public class AuthController {
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername().trim(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtil.generateJwtToken(authentication);
@@ -57,7 +57,8 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+        String username = signUpRequest.getUsername().trim();
+        if (userRepository.existsByUsername(username)) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("nombre de usuario ya registrado"));
@@ -65,7 +66,7 @@ public class AuthController {
 
         // Create new user's account
         User user = new User();
-        user.setUsername(signUpRequest.getUsername());
+        user.setUsername(username);
         user.setPassword(encoder.encode(signUpRequest.getPassword()));
 
         userRepository.save(user);
@@ -75,7 +76,8 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        User user = userRepository.findByUsername(request.getUsername()).orElse(null);
+        String username = request.getUsername().trim();
+        User user = userRepository.findByUsername(username).orElse(null);
         
         if (user == null) {
             return ResponseEntity
