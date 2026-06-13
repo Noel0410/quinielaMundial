@@ -26,7 +26,7 @@ public class PredictionService {
     private final UserRepository userRepository;
 
     public List<MatchPredictionDTO> getUserPredictions(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findByUsernameIgnoreCase(username).orElseThrow();
         List<Match> allMatches = matchRepository.findAll();
         List<Prediction> userPredictions = predictionRepository.findByUser(user);
 
@@ -50,7 +50,7 @@ public class PredictionService {
 
     @Transactional
     public void savePredictions(String username, List<MatchPredictionDTO> predictionsDTO) {
-        User user = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findByUsernameIgnoreCase(username).orElseThrow();
         List<Prediction> existingPredictions = predictionRepository.findByUser(user);
 
         for (MatchPredictionDTO dto : predictionsDTO) {

@@ -21,7 +21,7 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Optional<User> adminUserOpt = userRepository.findByUsername("admin");
+        Optional<User> adminUserOpt = userRepository.findByUsernameIgnoreCase("admin");
         if (adminUserOpt.isEmpty()) {
             User adminUser = new User();
             adminUser.setUsername("admin");

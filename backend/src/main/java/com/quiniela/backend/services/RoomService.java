@@ -25,7 +25,7 @@ public class RoomService {
 
     @Transactional
     public RoomDTO createRoom(String roomName, String username) {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         String code;
@@ -50,7 +50,7 @@ public class RoomService {
 
     @Transactional
     public RoomDTO joinRoom(String code, String username) {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
                 
         Room room = roomRepository.findByCode(code)
@@ -71,7 +71,7 @@ public class RoomService {
 
     @Transactional
     public void leaveRoom(String code, String username) {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
                 
         Room room = roomRepository.findByCode(code)
@@ -94,7 +94,7 @@ public class RoomService {
 
     @Transactional(readOnly = true)
     public List<RoomDTO> getUserRooms(String username) {
-        User user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsernameIgnoreCase(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
                 
         return user.getRooms().stream()

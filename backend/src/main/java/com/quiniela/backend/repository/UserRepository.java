@@ -9,9 +9,9 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
-    Optional<User> findByUsername(String username);
+    Optional<User> findByUsernameIgnoreCase(String username);
 
-    Boolean existsByUsername(String username);
+    Boolean existsByUsernameIgnoreCase(String username);
 
     @org.springframework.data.jpa.repository.Modifying
     @org.springframework.data.jpa.repository.Query(value = "UPDATE users SET total_points = (SELECT COALESCE(SUM(points), 0) FROM predictions WHERE user_id = users.id)", nativeQuery = true)

@@ -58,7 +58,7 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         String username = signUpRequest.getUsername().trim();
-        if (userRepository.existsByUsername(username)) {
+        if (userRepository.existsByUsernameIgnoreCase(username)) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("nombre de usuario ya registrado"));
@@ -77,7 +77,7 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         String username = request.getUsername().trim();
-        User user = userRepository.findByUsername(username).orElse(null);
+        User user = userRepository.findByUsernameIgnoreCase(username).orElse(null);
         
         if (user == null) {
             return ResponseEntity
