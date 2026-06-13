@@ -220,7 +220,7 @@ const Leaderboard: React.FC = () => {
                     <td className={`rank-col ${getRankClass(index)}`}>
                       #{index + 1}
                     </td>
-                    <td style={{ fontWeight: 500 }}>{user.username}</td>
+                    <td style={{ fontWeight: 500 }}>{user.username.split('@')[0]}</td>
                     <td className="points-col">{user.points} pts</td>
                   </tr>
                 ))
