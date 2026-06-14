@@ -67,9 +67,8 @@ public class PredictionService {
 
             Prediction prediction = existingOpt.orElse(new Prediction());
             if (match.getLimitDate() != null && new Timestamp(System.currentTimeMillis()).after(match.getLimitDate())) {
-                throw new RuntimeException(
-                        "No se puede crear ni modificar la predicción porque la fecha límite ya ha pasado para el partido "
-                                + match.getHomeTeam().getName() + " vs " + match.getAwayTeam().getName());
+                // Skip the prediction if it's locked, so it doesn't prevent other predictions in the group from saving
+                continue;
             }
             prediction.setUser(user);
             prediction.setMatch(match);
