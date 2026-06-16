@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-            Hola, <strong style={{ color: 'var(--text-main)' }}>{user?.username}</strong>
+            <span>Hola, </span><strong style={{ color: 'var(--text-main)' }}>{user?.username}</strong>
           </span>
           <button onClick={logout} className="btn-logout">
             Cerrar Sesión
@@ -50,14 +50,14 @@ const Dashboard: React.FC = () => {
             onClick={() => setActiveTab('leaderboard')}
           >
             <List size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }} />
-            Tabla de Posiciones
+            <span>Tabla de Posiciones</span>
           </button>
           <button
             className={`tab-item ${activeTab === 'predictions' ? 'active' : ''}`}
             onClick={() => setActiveTab('predictions')}
           >
             <Activity size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }} />
-            Predicciones
+            <span>Predicciones</span>
           </button>
           
           {user?.role === 'ADMIN' && (
@@ -66,7 +66,7 @@ const Dashboard: React.FC = () => {
               onClick={() => setActiveTab('admin')}
             >
               <Settings size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }} />
-              Administración
+              <span>Administración</span>
             </button>
           )}
 
@@ -75,7 +75,7 @@ const Dashboard: React.FC = () => {
             onClick={() => setActiveTab('how-to-play')}
           >
             <Info size={18} style={{ marginRight: '0.5rem', display: 'inline-block', verticalAlign: 'text-bottom' }} />
-            Cómo jugar
+            <span>Cómo jugar</span>
           </button>
         </div>
         

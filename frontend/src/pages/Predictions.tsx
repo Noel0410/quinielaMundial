@@ -232,7 +232,8 @@ const Predictions: React.FC = () => {
               </div>
               {match.finished && (
                 <div className="closed-badge">
-                  <Lock size={14} /> <span className="closed-text">Cerrado</span>
+                  <Lock size={14} />
+                  <span className="closed-text">Cerrado</span>
                 </div>
               )}
             </div>
@@ -242,14 +243,14 @@ const Predictions: React.FC = () => {
         {successMsg && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#10B981', background: 'rgba(16, 185, 129, 0.1)', padding: '0.75rem', borderRadius: '8px', marginTop: '1rem', marginBottom: '1rem' }}>
             <CheckCircle2 size={20} />
-            {successMsg}
+            <span>{successMsg}</span>
           </div>
         )}
 
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem', marginBottom: '2rem' }}>
           <button className="btn-primary" onClick={handleSaveGroup} disabled={saving} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             {saving ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={20} />}
-            Guardar Predicciones
+            <span>Guardar Predicciones</span>
           </button>
         </div>
 
@@ -308,7 +309,7 @@ const Predictions: React.FC = () => {
   return (
     <div className="tab-content glass-card">
       <div className="predictions-header">
-        {totalPredictions}/{totalMatches} pronósticos cargados
+        {`${totalPredictions}/${totalMatches} pronósticos cargados`}
       </div>
       <div className="groups-grid">
         {groups.map((group) => {
@@ -328,7 +329,7 @@ const Predictions: React.FC = () => {
                 ))}
               </div>
               <div className="group-footer">
-                {predictedInGroup}/{group.matches.length} PARTIDOS
+                {`${predictedInGroup}/${group.matches.length} PARTIDOS`}
               </div>
             </div>
           );
