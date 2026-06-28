@@ -13,5 +13,6 @@ public record MatchPredictionDTO(
         Integer predictedAwayGoals,
         Boolean isPredicted,
         Boolean finished,
-        Boolean homeTeamAdvances) {
+        Boolean homeTeamAdvances,
+        java.sql.Timestamp limitDate) {
 }

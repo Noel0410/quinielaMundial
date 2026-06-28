@@ -39,7 +39,8 @@ public class MatchController {
                 match.getAwayTeamGoals(), 
                 match.getHomeTeamGoals() != null && match.getAwayTeamGoals() != null,
                 false, 
-                null 
+                null,
+                match.getLimitDate()
         )).collect(Collectors.toList());
     }
 

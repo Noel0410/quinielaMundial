@@ -47,7 +47,8 @@ public class PredictionService {
                     predictionOpt.isPresent(),
                     match.getLimitDate() != null
                             && new Timestamp(System.currentTimeMillis()).after(match.getLimitDate()),
-                    predictionOpt.map(Prediction::getHomeTeamAdvances).orElse(null));
+                    predictionOpt.map(Prediction::getHomeTeamAdvances).orElse(null),
+                    match.getLimitDate());
         }).collect(Collectors.toList());
     }
 

@@ -13,6 +13,7 @@ export interface MatchPredictionDTO {
   isPredicted: boolean;
   finished: boolean;
   homeTeamAdvances?: boolean | null;
+  limitDate?: string | null;
 }
 
 export const predictionService = {

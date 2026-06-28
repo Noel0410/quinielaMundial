@@ -201,7 +201,10 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
 
     return (
       <div className="match-node-wrapper" key={order}>
-        <div className={`match-card ${isFinal ? 'is-final' : ''}`}>
+        <div 
+          className={`match-card ${isFinal ? 'is-final' : ''}`}
+          style={match.finished ? { boxShadow: '0 4px 12px rgba(228, 0, 43, 0.2)', border: '1px solid rgba(228, 0, 43, 0.3)', backgroundColor: 'rgba(228, 0, 43, 0.08)' } : {}}
+        >
           <div className="match-team-row">
             <div className="match-team-info">
               <span className="team-flag">{match.homeTeamName ? FLAGS[match.homeTeamName] || '🏳️' : ''}</span>
@@ -216,6 +219,7 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
               value={match.predictedHomeGoals ?? ''}
               onChange={(e) => handleGoalChange(match.matchId, 'home', e.target.value)}
               disabled={match.finished || !match.homeTeamName || !match.awayTeamName}
+              style={match.finished ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             />
           </div>
           <div className="match-team-row">
@@ -232,6 +236,7 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
               value={match.predictedAwayGoals ?? ''}
               onChange={(e) => handleGoalChange(match.matchId, 'away', e.target.value)}
               disabled={match.finished || !match.homeTeamName || !match.awayTeamName}
+              style={match.finished ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
             />
           </div>
 
@@ -248,7 +253,12 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
               </label>
             </div>
           )}
-          {match.finished && <div style={{ position: 'absolute', top: -5, right: -5, background: 'var(--wc-red)', borderRadius: '50%', padding: '2px' }}><Lock size={12} color="#fff" /></div>}
+          {match.finished && (
+            <div className="closed-badge" style={{ position: 'absolute', top: -12, right: -10, transform: 'none', padding: '2px 6px', fontSize: '0.7rem' }}>
+              <Lock size={12} />
+              <span className="closed-text">Cerrado</span>
+            </div>
+          )}
         </div>
       </div>
     );

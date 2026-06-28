@@ -35,11 +35,11 @@ const AdminPanel: React.FC = () => {
 
   const STAGES = [
     'Fase de Grupos',
-    'Dieciseisavos de Final',
-    'Octavos de Final',
-    'Cuartos de Final',
-    'Semifinales',
-    'Tercer Puesto',
+    'Dieciseisavos',
+    'Octavos',
+    'Cuartos',
+    'Semifinal',
+    'Tercer lugar',
     'Final'
   ];
 
@@ -85,27 +85,62 @@ const AdminPanel: React.FC = () => {
       const response = await axios.get(API_ENDPOINTS.MATCHES.LIST);
       const data: MatchPredictionDTO[] = response.data;
 
+      const newMatchLimitDates: Record<string, string> = {};
+      data.forEach(match => {
+        if (match.limitDate) {
+          // Parse limitDate and format it to 'YYYY-MM-DDThh:mm' in local time for datetime-local input
+          const date = new Date(match.limitDate);
+          const tzOffsetMs = date.getTimezoneOffset() * 60000;
+          const localISOTime = new Date(date.getTime() - tzOffsetMs).toISOString().slice(0, 16);
+          newMatchLimitDates[match.matchId] = localISOTime;
+        }
+      });
+      setMatchLimitDates(newMatchLimitDates);
+
       const groupsMap = new Map<string, Group>();
       data.forEach(match => {
-        const groupId = match.groupName.replace('Grupo ', '').trim();
+        const isGroupStage = match.stage === 'Fase de Grupos' || match.stage === 'Group Stage';
+        const groupNameStr = isGroupStage && match.groupName ? match.groupName : match.stage;
+        const groupId = isGroupStage && match.groupName ? match.groupName.replace('Grupo ', '').trim() : match.stage;
+        
         if (!groupsMap.has(groupId)) {
-          groupsMap.set(groupId, { id: groupId, name: match.groupName, teams: [], matches: [] });
+          groupsMap.set(groupId, { id: groupId, name: groupNameStr, teams: [], matches: [] });
         }
         const group = groupsMap.get(groupId)!;
         group.matches.push({ ...match });
 
-        if (!group.teams.find(t => t.name === match.homeTeamName)) {
+        if (match.homeTeamName && !group.teams.find(t => t.name === match.homeTeamName)) {
           group.teams.push({ name: match.homeTeamName, flag: FLAGS[match.homeTeamName] || '🏳️' });
         }
-        if (!group.teams.find(t => t.name === match.awayTeamName)) {
+        if (match.awayTeamName && !group.teams.find(t => t.name === match.awayTeamName)) {
           group.teams.push({ name: match.awayTeamName, flag: FLAGS[match.awayTeamName] || '🏳️' });
         }
       });
 
+      const STAGE_ORDER: Record<string, number> = {
+        'Fase de Grupos': 1,
+        'Dieciseisavos': 2,
+        'Octavos': 3,
+        'Cuartos': 4,
+        'Semifinal': 5,
+        'Tercer lugar': 6,
+        'Final': 7
+      };
+
       const sortedGroups = Array.from(groupsMap.values()).map(g => {
-        g.matches.sort((a, b) => getMatchOrderIndex(a.homeTeamName, a.awayTeamName) - getMatchOrderIndex(b.homeTeamName, b.awayTeamName));
+        g.matches.sort((a, b) => {
+          if (a.matchOrder != null && b.matchOrder != null) {
+            return a.matchOrder - b.matchOrder;
+          }
+          return getMatchOrderIndex(a.homeTeamName || '', a.awayTeamName || '') - getMatchOrderIndex(b.homeTeamName || '', b.awayTeamName || '');
+        });
         return g;
-      }).sort((a, b) => a.id.localeCompare(b.id));
+      }).sort((a, b) => {
+        const stageA = STAGE_ORDER[a.name] || 0;
+        const stageB = STAGE_ORDER[b.name] || 0;
+        if (stageA !== stageB) return stageA - stageB;
+        return a.id.localeCompare(b.id);
+      });
       setGroups(sortedGroups);
     } catch (error) {
       console.error(error);
@@ -181,12 +216,16 @@ const AdminPanel: React.FC = () => {
             {group.matches.map((match) => (
               <div key={match.matchId} className="match-row" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
                 <div className="match-team" style={{ flex: 1 }}>
-                  <span className="team-flag">{FLAGS[match.homeTeamName] || '🏳️'}</span>
-                  <span>{SHORT_NAME[match.homeTeamName] || match.homeTeamName}</span>
+                  <span className="team-flag">{match.homeTeamName ? FLAGS[match.homeTeamName] || '🏳️' : '🏳️'}</span>
+                  <span style={!match.homeTeamName ? { color: 'var(--text-muted)', fontStyle: 'italic' } : {}}>
+                    {match.homeTeamName ? SHORT_NAME[match.homeTeamName] || match.homeTeamName : 'Por definir'}
+                  </span>
                 </div>
                 <div className="match-team right" style={{ flex: 1 }}>
-                  <span>{SHORT_NAME[match.awayTeamName] || match.awayTeamName}</span>
-                  <span className="team-flag">{FLAGS[match.awayTeamName] || '🏳️'}</span>
+                  <span style={!match.awayTeamName ? { color: 'var(--text-muted)', fontStyle: 'italic' } : {}}>
+                    {match.awayTeamName ? SHORT_NAME[match.awayTeamName] || match.awayTeamName : 'Por definir'}
+                  </span>
+                  <span className="team-flag">{match.awayTeamName ? FLAGS[match.awayTeamName] || '🏳️' : '🏳️'}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 2, justifyContent: 'flex-end' }}>
                   <input
@@ -276,8 +315,10 @@ const AdminPanel: React.FC = () => {
             {group.matches.map((match) => (
               <div key={match.matchId} className="match-row" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem' }}>
                 <div className="match-team">
-                  <span className="team-flag">{FLAGS[match.homeTeamName] || '🏳️'}</span>
-                  <span>{SHORT_NAME[match.homeTeamName] || match.homeTeamName}</span>
+                  <span className="team-flag">{match.homeTeamName ? FLAGS[match.homeTeamName] || '🏳️' : '🏳️'}</span>
+                  <span style={!match.homeTeamName ? { color: 'var(--text-muted)', fontStyle: 'italic' } : {}}>
+                    {match.homeTeamName ? SHORT_NAME[match.homeTeamName] || match.homeTeamName : 'Por definir'}
+                  </span>
                 </div>
                 <div className="match-inputs">
                   <input
@@ -297,8 +338,10 @@ const AdminPanel: React.FC = () => {
                   />
                 </div>
                 <div className="match-team right">
-                  <span className="team-flag">{FLAGS[match.awayTeamName] || '🏳️'}</span>
-                  <span>{SHORT_NAME[match.awayTeamName] || match.awayTeamName}</span>
+                  <span style={!match.awayTeamName ? { color: 'var(--text-muted)', fontStyle: 'italic' } : {}}>
+                    {match.awayTeamName ? SHORT_NAME[match.awayTeamName] || match.awayTeamName : 'Por definir'}
+                  </span>
+                  <span className="team-flag">{match.awayTeamName ? FLAGS[match.awayTeamName] || '🏳️' : '🏳️'}</span>
                 </div>
                 <div style={{ flexBasis: '100%', display: 'flex', justifyContent: 'center', marginTop: '0.5rem' }}>
                   <button
