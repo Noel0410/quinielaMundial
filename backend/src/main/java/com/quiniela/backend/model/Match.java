@@ -15,15 +15,18 @@ public class Match {
     private UUID id;
 
     @ManyToOne
-    @JoinColumn(name = "home_team_id", nullable = false)
+    @JoinColumn(name = "home_team_id", nullable = true)
     private Team homeTeam;
 
     @ManyToOne
-    @JoinColumn(name = "away_team_id", nullable = false)
+    @JoinColumn(name = "away_team_id", nullable = true)
     private Team awayTeam;
 
     @Column(nullable = false)
     private String stage;
+
+    @Column(nullable = true)
+    private Integer matchOrder;
 
     @Column
     private Integer homeTeamGoals;

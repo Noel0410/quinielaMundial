@@ -7,8 +7,11 @@ public record MatchPredictionDTO(
         String homeTeamName,
         String awayTeamName,
         String groupName,
+        String stage,
+        Integer matchOrder,
         Integer predictedHomeGoals,
         Integer predictedAwayGoals,
         Boolean isPredicted,
-        Boolean finished) {
+        Boolean finished,
+        Boolean homeTeamAdvances) {
 }

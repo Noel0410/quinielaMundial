@@ -37,14 +37,17 @@ public class PredictionService {
 
             return new MatchPredictionDTO(
                     match.getId(),
-                    match.getHomeTeam().getName(),
-                    match.getAwayTeam().getName(),
-                    match.getHomeTeam().getGroupName(), // Asumiendo que homeTeam.groupName es el grupo del partido
+                    match.getHomeTeam() != null ? match.getHomeTeam().getName() : null,
+                    match.getAwayTeam() != null ? match.getAwayTeam().getName() : null,
+                    match.getHomeTeam() != null ? match.getHomeTeam().getGroupName() : null,
+                    match.getStage(),
+                    match.getMatchOrder(),
                     predictionOpt.map(Prediction::getHomeTeamGoals).orElse(null),
                     predictionOpt.map(Prediction::getAwayTeamGoals).orElse(null),
                     predictionOpt.isPresent(),
                     match.getLimitDate() != null
-                            && new Timestamp(System.currentTimeMillis()).after(match.getLimitDate()));
+                            && new Timestamp(System.currentTimeMillis()).after(match.getLimitDate()),
+                    predictionOpt.map(Prediction::getHomeTeamAdvances).orElse(null));
         }).collect(Collectors.toList());
     }
 
@@ -74,6 +77,7 @@ public class PredictionService {
             prediction.setMatch(match);
             prediction.setHomeTeamGoals(dto.predictedHomeGoals());
             prediction.setAwayTeamGoals(dto.predictedAwayGoals());
+            prediction.setHomeTeamAdvances(dto.homeTeamAdvances());
             prediction.setLimitDate(match.getLimitDate());
 
             predictionRepository.save(prediction);

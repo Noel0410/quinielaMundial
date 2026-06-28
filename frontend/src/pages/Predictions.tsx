@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, Loader2, Save, Lock, CheckCircle2 } from 'lucide-react';
 import { predictionService, type MatchPredictionDTO } from '../services/predictionService';
 import { FLAGS, SHORT_NAME, getMatchOrderIndex } from '../countries';
+import KnockoutBracket from './KnockoutBracket';
 
 interface Team {
   name: string;
@@ -35,6 +36,7 @@ const Predictions: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'groups' | 'knockout'>('groups');
 
   useEffect(() => {
     fetchPredictions();
@@ -43,20 +45,21 @@ const Predictions: React.FC = () => {
   const fetchPredictions = async () => {
     try {
       const data = await predictionService.getMyPredictions();
+      const groupMatches = data.filter(m => m.stage === 'Fase de Grupos' || m.stage === 'Group Stage');
 
       const groupsMap = new Map<string, Group>();
-      data.forEach(match => {
-        const groupId = match.groupName.replace('Grupo ', '').trim();
+      groupMatches.forEach(match => {
+        const groupId = match.groupName ? match.groupName.replace('Grupo ', '').trim() : 'Desconocido';
         if (!groupsMap.has(groupId)) {
-          groupsMap.set(groupId, { id: groupId, name: match.groupName, teams: [], matches: [] });
+          groupsMap.set(groupId, { id: groupId, name: match.groupName || 'Grupo', teams: [], matches: [] });
         }
         const group = groupsMap.get(groupId)!;
         group.matches.push({ ...match });
 
-        if (!group.teams.find(t => t.name === match.homeTeamName)) {
+        if (match.homeTeamName && !group.teams.find(t => t.name === match.homeTeamName)) {
           group.teams.push({ name: match.homeTeamName, flag: FLAGS[match.homeTeamName] || '🏳️' });
         }
-        if (!group.teams.find(t => t.name === match.awayTeamName)) {
+        if (match.awayTeamName && !group.teams.find(t => t.name === match.awayTeamName)) {
           group.teams.push({ name: match.awayTeamName, flag: FLAGS[match.awayTeamName] || '🏳️' });
         }
       });
@@ -172,14 +175,48 @@ const Predictions: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="tab-content glass-card" style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
-        <Loader2 size={32} color="var(--primary)" style={{ animation: 'spin 1s linear infinite' }} />
+      <div className="predictions-container">
+        <div className="tab-content glass-card" style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+          <Loader2 size={32} color="var(--primary)" style={{ animation: 'spin 1s linear infinite' }} />
+        </div>
       </div>
     );
   }
 
   if (error) {
-    return <div className="tab-content glass-card"><div className="error-message">{error}</div></div>;
+    return (
+      <div className="predictions-container">
+        <div className="tab-content glass-card"><div className="error-message">{error}</div></div>
+      </div>
+    );
+  }
+
+  const renderTabs = () => (
+    <div className="tabs-container" style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyContent: 'center' }}>
+      <button 
+        className={activeTab === 'groups' ? 'btn-primary' : 'btn-secondary'} 
+        style={{ padding: '0.5rem 1.5rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: activeTab === 'groups' ? 'var(--primary)' : 'var(--surface)', color: activeTab === 'groups' ? '#fff' : 'var(--text-main)', fontWeight: 'bold' }}
+        onClick={() => setActiveTab('groups')}
+      >
+        Fase de Grupos
+      </button>
+      <button 
+        className={activeTab === 'knockout' ? 'btn-primary' : 'btn-secondary'} 
+        style={{ padding: '0.5rem 1.5rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: activeTab === 'knockout' ? 'var(--primary)' : 'var(--surface)', color: activeTab === 'knockout' ? '#fff' : 'var(--text-main)', fontWeight: 'bold' }}
+        onClick={() => setActiveTab('knockout')}
+      >
+        Fase Eliminatoria
+      </button>
+    </div>
+  );
+
+  if (activeTab === 'knockout') {
+    return (
+      <div className="predictions-container">
+        {renderTabs()}
+        <KnockoutBracket />
+      </div>
+    );
   }
 
   if (selectedGroup) {
@@ -187,7 +224,9 @@ const Predictions: React.FC = () => {
     const standings = calculateStandings(group);
 
     return (
-      <div className="tab-content glass-card">
+      <div className="predictions-container">
+        {renderTabs()}
+        <div className="tab-content glass-card">
         <div className="detail-header" onClick={() => setSelectedGroup(null)}>
           <button className="back-btn"><ChevronLeft size={20} /></button>
           <div className="group-letter" style={{ width: 40, height: 40, fontSize: '1.2rem' }}>{group.id}</div>
@@ -300,6 +339,7 @@ const Predictions: React.FC = () => {
           </table>
         </div>
       </div>
+      </div>
     );
   }
 
@@ -307,7 +347,9 @@ const Predictions: React.FC = () => {
   const totalMatches = groups.reduce((acc, g) => acc + g.matches.length, 0);
 
   return (
-    <div className="tab-content glass-card">
+    <div className="predictions-container">
+      {renderTabs()}
+      <div className="tab-content glass-card">
       <div className="predictions-header">
         {`${totalPredictions}/${totalMatches} pronósticos cargados`}
       </div>
@@ -335,6 +377,7 @@ const Predictions: React.FC = () => {
           );
         })}
       </div>
+    </div>
     </div>
   );
 };

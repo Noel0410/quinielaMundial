@@ -30,13 +30,16 @@ public class MatchController {
         List<Match> matches = matchRepository.findAll();
         return matches.stream().map(match -> new MatchPredictionDTO(
                 match.getId(),
-                match.getHomeTeam().getName(),
-                match.getAwayTeam().getName(),
-                match.getHomeTeam().getGroupName(), // Assuming homeTeam.groupName is the match group
-                match.getHomeTeamGoals(), // Using real result as "predicted" for admin view
-                match.getAwayTeamGoals(), // Using real result as "predicted" for admin view
+                match.getHomeTeam() != null ? match.getHomeTeam().getName() : null,
+                match.getAwayTeam() != null ? match.getAwayTeam().getName() : null,
+                match.getHomeTeam() != null ? match.getHomeTeam().getGroupName() : null,
+                match.getStage(),
+                match.getMatchOrder(),
+                match.getHomeTeamGoals(), 
+                match.getAwayTeamGoals(), 
                 match.getHomeTeamGoals() != null && match.getAwayTeamGoals() != null,
-                false // Not used for this view, or we can use it to block edits if we wanted
+                false, 
+                null 
         )).collect(Collectors.toList());
     }
 

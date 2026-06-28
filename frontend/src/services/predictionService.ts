@@ -6,10 +6,13 @@ export interface MatchPredictionDTO {
   homeTeamName: string;
   awayTeamName: string;
   groupName: string;
+  stage: string;
+  matchOrder: number | null;
   predictedHomeGoals: number | null;
   predictedAwayGoals: number | null;
   isPredicted: boolean;
   finished: boolean;
+  homeTeamAdvances?: boolean | null;
 }
 
 export const predictionService = {

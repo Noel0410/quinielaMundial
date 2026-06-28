@@ -33,4 +33,6 @@ public class Prediction {
 
     @Column(nullable = true)
     private Integer points = 0;
+    @Column(nullable = true)
+    private Boolean homeTeamAdvances;
 }
