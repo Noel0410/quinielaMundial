@@ -39,7 +39,7 @@ public class MatchController {
                 match.getAwayTeamGoals(), 
                 match.getHomeTeamGoals() != null && match.getAwayTeamGoals() != null,
                 false, 
-                null,
+                match.getHomeTeamAdvances(),
                 match.getLimitDate()
         )).collect(Collectors.toList());
     }
@@ -48,11 +48,12 @@ public class MatchController {
     @PostMapping("/{matchId}/result")
     public ResponseEntity<?> updateMatchResult(
             @PathVariable UUID matchId,
-            @RequestBody Map<String, Integer> payload) {
+            @RequestBody Map<String, Object> payload) {
         try {
-            Integer homeGoals = payload.get("homeGoals");
-            Integer awayGoals = payload.get("awayGoals");
-            matchService.updateMatchResult(matchId, homeGoals, awayGoals);
+            Integer homeGoals = (Integer) payload.get("homeGoals");
+            Integer awayGoals = (Integer) payload.get("awayGoals");
+            Boolean homeTeamAdvances = (Boolean) payload.get("homeTeamAdvances");
+            matchService.updateMatchResult(matchId, homeGoals, awayGoals, homeTeamAdvances);
             return ResponseEntity.ok().build();
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));

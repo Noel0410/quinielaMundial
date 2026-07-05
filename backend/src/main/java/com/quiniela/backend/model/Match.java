@@ -36,4 +36,7 @@ public class Match {
 
     @Column(nullable = true)
     private Timestamp limitDate;
+
+    @Column(nullable = true)
+    private Boolean homeTeamAdvances;
 }

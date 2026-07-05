@@ -163,7 +163,24 @@ const AdminPanel: React.FC = () => {
           const updatedMatch = { ...m };
           if (type === 'home') updatedMatch.predictedHomeGoals = numValue;
           if (type === 'away') updatedMatch.predictedAwayGoals = numValue;
+
+          if (updatedMatch.predictedHomeGoals != null && updatedMatch.predictedAwayGoals != null && updatedMatch.predictedHomeGoals !== updatedMatch.predictedAwayGoals) {
+            updatedMatch.homeTeamAdvances = null;
+          }
           return updatedMatch;
+        })
+      };
+    }));
+  };
+
+  const handleAdvanceChange = (matchId: string, advances: boolean) => {
+    setGroups(prevGroups => prevGroups.map(g => {
+      if (g.id !== selectedGroup) return g;
+      return {
+        ...g,
+        matches: g.matches.map(m => {
+          if (m.matchId !== matchId) return m;
+          return { ...m, homeTeamAdvances: advances };
         })
       };
     }));
@@ -174,13 +191,21 @@ const AdminPanel: React.FC = () => {
       alert("Por favor ingresa ambos goles.");
       return;
     }
+    const isKnockout = match.stage !== 'Fase de Grupos' && match.stage !== 'Group Stage';
+    const isTied = match.predictedHomeGoals === match.predictedAwayGoals;
+    if (isKnockout && isTied && match.homeTeamAdvances === null) {
+      alert("Por favor selecciona qué equipo avanza a la siguiente ronda.");
+      return;
+    }
     setSavingMatches(prev => ({ ...prev, [match.matchId]: true }));
     try {
       await axios.post(API_ENDPOINTS.MATCHES.UPDATE_RESULT(match.matchId), {
         homeGoals: match.predictedHomeGoals,
-        awayGoals: match.predictedAwayGoals
+        awayGoals: match.predictedAwayGoals,
+        homeTeamAdvances: isKnockout && isTied ? match.homeTeamAdvances : null
       });
       alert('Resultado guardado y puntos recalculados correctamente.');
+      fetchMatches();
     } catch (error) {
       console.error(error);
       alert('Error al guardar el resultado.');
@@ -312,50 +337,67 @@ const AdminPanel: React.FC = () => {
 
           <h4 className="section-title">Partidos</h4>
           <div className="matches-list">
-            {group.matches.map((match) => (
-              <div key={match.matchId} className="match-row" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem' }}>
-                <div className="match-team">
-                  <span className="team-flag">{match.homeTeamName ? FLAGS[match.homeTeamName] || '🏳️' : '🏳️'}</span>
-                  <span style={!match.homeTeamName ? { color: 'var(--text-muted)', fontStyle: 'italic' } : {}}>
-                    {match.homeTeamName ? SHORT_NAME[match.homeTeamName] || match.homeTeamName : 'Por definir'}
-                  </span>
+            {group.matches.map((match) => {
+              const isKnockout = match.stage !== 'Fase de Grupos' && match.stage !== 'Group Stage';
+              const isTied = match.predictedHomeGoals != null && match.predictedAwayGoals != null && match.predictedHomeGoals === match.predictedAwayGoals;
+              return (
+                <div key={match.matchId} className="match-row" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', gap: '0.5rem' }}>
+                  <div className="match-team">
+                    <span className="team-flag">{match.homeTeamName ? FLAGS[match.homeTeamName] || '🏳️' : '🏳️'}</span>
+                    <span style={!match.homeTeamName ? { color: 'var(--text-muted)', fontStyle: 'italic' } : {}}>
+                      {match.homeTeamName ? SHORT_NAME[match.homeTeamName] || match.homeTeamName : 'Por definir'}
+                    </span>
+                  </div>
+                  <div className="match-inputs">
+                    <input
+                      type="text"
+                      className="match-input"
+                      maxLength={2}
+                      value={match.predictedHomeGoals ?? ''}
+                      onChange={(e) => handleGoalChange(match.matchId, 'home', e.target.value)}
+                    />
+                    <span className="match-separator">-</span>
+                    <input
+                      type="text"
+                      className="match-input"
+                      maxLength={2}
+                      value={match.predictedAwayGoals ?? ''}
+                      onChange={(e) => handleGoalChange(match.matchId, 'away', e.target.value)}
+                    />
+                  </div>
+                  <div className="match-team right">
+                    <span style={!match.awayTeamName ? { color: 'var(--text-muted)', fontStyle: 'italic' } : {}}>
+                      {match.awayTeamName ? SHORT_NAME[match.awayTeamName] || match.awayTeamName : 'Por definir'}
+                    </span>
+                    <span className="team-flag">{match.awayTeamName ? FLAGS[match.awayTeamName] || '🏳️' : '🏳️'}</span>
+                  </div>
+                  {isKnockout && isTied && (
+                    <div className="tie-breaker" style={{ flexBasis: '100%', display: 'flex', justifyContent: 'center', gap: '1.5rem', marginTop: '0.5rem', fontSize: '0.9rem', padding: '0.25rem', background: 'rgba(255, 255, 255, 0.05)', borderRadius: '4px' }}>
+                      <span style={{ fontWeight: 'bold', color: 'var(--text-muted)' }}>Avanza:</span>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
+                        <input type="radio" name={`adv-admin-${match.matchId}`} checked={match.homeTeamAdvances === true} onChange={() => handleAdvanceChange(match.matchId, true)} />
+                        {match.homeTeamName ? SHORT_NAME[match.homeTeamName] || match.homeTeamName.substring(0, 3) : 'L'}
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', cursor: 'pointer' }}>
+                        <input type="radio" name={`adv-admin-${match.matchId}`} checked={match.homeTeamAdvances === false} onChange={() => handleAdvanceChange(match.matchId, false)} />
+                        {match.awayTeamName ? SHORT_NAME[match.awayTeamName] || match.awayTeamName.substring(0, 3) : 'V'}
+                      </label>
+                    </div>
+                  )}
+                  <div style={{ flexBasis: '100%', display: 'flex', justifyContent: 'center', marginTop: '0.5rem' }}>
+                    <button
+                      className="btn-primary"
+                      onClick={() => handleSaveResult(match)}
+                      disabled={savingMatches[match.matchId]}
+                      style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                    >
+                      {savingMatches[match.matchId] ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={16} />}
+                      Guardar
+                    </button>
+                  </div>
                 </div>
-                <div className="match-inputs">
-                  <input
-                    type="text"
-                    className="match-input"
-                    maxLength={2}
-                    value={match.predictedHomeGoals ?? ''}
-                    onChange={(e) => handleGoalChange(match.matchId, 'home', e.target.value)}
-                  />
-                  <span className="match-separator">-</span>
-                  <input
-                    type="text"
-                    className="match-input"
-                    maxLength={2}
-                    value={match.predictedAwayGoals ?? ''}
-                    onChange={(e) => handleGoalChange(match.matchId, 'away', e.target.value)}
-                  />
-                </div>
-                <div className="match-team right">
-                  <span style={!match.awayTeamName ? { color: 'var(--text-muted)', fontStyle: 'italic' } : {}}>
-                    {match.awayTeamName ? SHORT_NAME[match.awayTeamName] || match.awayTeamName : 'Por definir'}
-                  </span>
-                  <span className="team-flag">{match.awayTeamName ? FLAGS[match.awayTeamName] || '🏳️' : '🏳️'}</span>
-                </div>
-                <div style={{ flexBasis: '100%', display: 'flex', justifyContent: 'center', marginTop: '0.5rem' }}>
-                  <button
-                    className="btn-primary"
-                    onClick={() => handleSaveResult(match)}
-                    disabled={savingMatches[match.matchId]}
-                    style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-                  >
-                    {savingMatches[match.matchId] ? <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={16} />}
-                    Guardar
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       );

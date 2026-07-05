@@ -193,15 +193,15 @@ const Predictions: React.FC = () => {
 
   const renderTabs = () => (
     <div className="tabs-container" style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', justifyContent: 'center' }}>
-      <button 
-        className={activeTab === 'groups' ? 'btn-primary' : 'btn-secondary'} 
+      <button
+        className={activeTab === 'groups' ? 'btn-primary' : 'btn-secondary'}
         style={{ padding: '0.5rem 1.5rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: activeTab === 'groups' ? 'var(--primary)' : 'var(--surface)', color: activeTab === 'groups' ? '#fff' : 'var(--text-main)', fontWeight: 'bold' }}
         onClick={() => setActiveTab('groups')}
       >
         Fase de Grupos
       </button>
-      <button 
-        className={activeTab === 'knockout' ? 'btn-primary' : 'btn-secondary'} 
+      <button
+        className={activeTab === 'knockout' ? 'btn-primary' : 'btn-secondary'}
         style={{ padding: '0.5rem 1.5rem', borderRadius: '8px', cursor: 'pointer', border: 'none', background: activeTab === 'knockout' ? 'var(--primary)' : 'var(--surface)', color: activeTab === 'knockout' ? '#fff' : 'var(--text-main)', fontWeight: 'bold' }}
         onClick={() => setActiveTab('knockout')}
       >
@@ -227,118 +227,118 @@ const Predictions: React.FC = () => {
       <div className="predictions-container">
         {renderTabs()}
         <div className="tab-content glass-card">
-        <div className="detail-header" onClick={() => setSelectedGroup(null)}>
-          <button className="back-btn"><ChevronLeft size={20} /></button>
-          <div className="group-letter" style={{ width: 40, height: 40, fontSize: '1.2rem' }}>{group.id}</div>
-          <div className="detail-header-info">
-            <h2>{group.name}</h2>
-            <p>Fase de Grupos</p>
-          </div>
-        </div>
-
-        <h4 className="section-title">Partidos</h4>
-        <div className="matches-list">
-          {group.matches.map((match) => (
-            <div key={match.matchId} className="match-row" style={{ position: 'relative', ...(match.finished ? { boxShadow: '0 4px 12px rgba(228, 0, 43, 0.2)', border: '1px solid rgba(228, 0, 43, 0.3)', backgroundColor: 'rgba(228, 0, 43, 0.08)' } : {}) }}>
-              <div className="match-team">
-                <span className="team-flag">{FLAGS[match.homeTeamName] || '🏳️'}</span>
-                <span>{SHORT_NAME[match.homeTeamName] || match.homeTeamName}</span>
-              </div>
-              <div className="match-inputs">
-                <input
-                  type="text"
-                  className="match-input"
-                  maxLength={1}
-                  value={match.predictedHomeGoals ?? ''}
-                  onChange={(e) => handleGoalChange(match.matchId, 'home', e.target.value)}
-                  disabled={match.finished}
-                  style={match.finished ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
-                />
-                <span className="match-separator">-</span>
-                <input
-                  type="text"
-                  className="match-input"
-                  maxLength={1}
-                  value={match.predictedAwayGoals ?? ''}
-                  onChange={(e) => handleGoalChange(match.matchId, 'away', e.target.value)}
-                  disabled={match.finished}
-                  style={match.finished ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
-                />
-              </div>
-              <div className="match-team right">
-                <span className="team-flag">{FLAGS[match.awayTeamName] || '🏳️'}</span>
-                <span>{SHORT_NAME[match.awayTeamName] || match.awayTeamName}</span>
-              </div>
-              {match.finished && (
-                <div className="closed-badge">
-                  <Lock size={14} />
-                  <span className="closed-text">Cerrado</span>
-                </div>
-              )}
+          <div className="detail-header" onClick={() => setSelectedGroup(null)}>
+            <button className="back-btn"><ChevronLeft size={20} /></button>
+            <div className="group-letter" style={{ width: 40, height: 40, fontSize: '1.2rem' }}>{group.id}</div>
+            <div className="detail-header-info">
+              <h2>{group.name}</h2>
+              <p>Fase de Grupos</p>
             </div>
-          ))}
-        </div>
-
-        {successMsg && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#10B981', background: 'rgba(16, 185, 129, 0.1)', padding: '0.75rem', borderRadius: '8px', marginTop: '1rem', marginBottom: '1rem' }}>
-            <CheckCircle2 size={20} />
-            <span>{successMsg}</span>
           </div>
-        )}
 
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem', marginBottom: '2rem' }}>
-          <button className="btn-primary" onClick={handleSaveGroup} disabled={saving} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            {saving ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={20} />}
-            <span>Guardar Predicciones</span>
-          </button>
-        </div>
+          <h4 className="section-title">Partidos</h4>
+          <div className="matches-list">
+            {group.matches.map((match) => (
+              <div key={match.matchId} className="match-row" style={{ position: 'relative', ...(match.finished ? { boxShadow: '0 4px 12px rgba(228, 0, 43, 0.2)', border: '1px solid rgba(228, 0, 43, 0.3)', backgroundColor: 'rgba(228, 0, 43, 0.08)' } : {}) }}>
+                <div className="match-team">
+                  <span className="team-flag">{FLAGS[match.homeTeamName] || '🏳️'}</span>
+                  <span>{SHORT_NAME[match.homeTeamName] || match.homeTeamName}</span>
+                </div>
+                <div className="match-inputs">
+                  <input
+                    type="text"
+                    className="match-input"
+                    maxLength={1}
+                    value={match.predictedHomeGoals ?? ''}
+                    onChange={(e) => handleGoalChange(match.matchId, 'home', e.target.value)}
+                    disabled={match.finished}
+                    style={match.finished ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                  />
+                  <span className="match-separator">-</span>
+                  <input
+                    type="text"
+                    className="match-input"
+                    maxLength={1}
+                    value={match.predictedAwayGoals ?? ''}
+                    onChange={(e) => handleGoalChange(match.matchId, 'away', e.target.value)}
+                    disabled={match.finished}
+                    style={match.finished ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                  />
+                </div>
+                <div className="match-team right">
+                  <span className="team-flag">{FLAGS[match.awayTeamName] || '🏳️'}</span>
+                  <span>{SHORT_NAME[match.awayTeamName] || match.awayTeamName}</span>
+                </div>
+                {match.finished && (
+                  <div className="closed-badge">
+                    <Lock size={14} />
+                    <span className="closed-text">Cerrado</span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
 
-        <h4 className="section-title">Predicción del grupo</h4>
-        <div style={{ overflowX: 'auto' }}>
-          <table className="styled-table">
-            <thead>
-              <tr>
-                <th style={{ width: '40px' }}>#</th>
-                <th>Equipo</th>
-                <th style={{ textAlign: 'center' }}>PJ</th>
-                <th style={{ textAlign: 'center' }}>G</th>
-                <th style={{ textAlign: 'center' }}>E</th>
-                <th style={{ textAlign: 'center' }}>P</th>
-                <th style={{ textAlign: 'center' }}>DG</th>
-                <th className="points-col">Pts</th>
-              </tr>
-            </thead>
-            <tbody>
-              {standings.map((team, idx) => (
-                <tr key={team.name}>
-                  <td className={idx < 2 ? 'rank-1' : ''} style={{ color: idx < 2 ? '#FFD700' : 'var(--text-muted)' }}>
-                    <div style={{
-                      width: 20, height: 20, borderRadius: '50%',
-                      background: idx < 2 ? 'var(--wc-red)' : 'var(--surface-border)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: '0.7rem', color: '#fff'
-                    }}>
-                      {idx + 1}
-                    </div>
-                  </td>
-                  <td style={{ fontWeight: idx < 2 ? 'bold' : 'normal', color: idx < 2 ? 'var(--text-main)' : 'var(--text-muted)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span className="team-flag">{team.flag}</span>
-                      <span>{team.name}</span>
-                    </div>
-                  </td>
-                  <td style={{ textAlign: 'center' }}>{team.p}</td>
-                  <td style={{ textAlign: 'center' }}>{team.w}</td>
-                  <td style={{ textAlign: 'center' }}>{team.d}</td>
-                  <td style={{ textAlign: 'center' }}>{team.l}</td>
-                  <td style={{ textAlign: 'center' }}>{team.gd > 0 ? `+${team.gd}` : team.gd}</td>
-                  <td className="points-col">{team.pts}</td>
+          {successMsg && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#10B981', background: 'rgba(16, 185, 129, 0.1)', padding: '0.75rem', borderRadius: '8px', marginTop: '1rem', marginBottom: '1rem' }}>
+              <CheckCircle2 size={20} />
+              <span>{successMsg}</span>
+            </div>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem', marginBottom: '2rem' }}>
+            <button className="btn-primary" onClick={handleSaveGroup} disabled={saving} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+              {saving ? <Loader2 size={20} style={{ animation: 'spin 1s linear infinite' }} /> : <Save size={20} />}
+              <span>Guardar Predicciones</span>
+            </button>
+          </div>
+
+          <h4 className="section-title">Predicción del grupo</h4>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="styled-table">
+              <thead>
+                <tr>
+                  <th style={{ width: '40px' }}>#</th>
+                  <th>Equipo</th>
+                  <th style={{ textAlign: 'center' }}>PJ</th>
+                  <th style={{ textAlign: 'center' }}>G</th>
+                  <th style={{ textAlign: 'center' }}>E</th>
+                  <th style={{ textAlign: 'center' }}>P</th>
+                  <th style={{ textAlign: 'center' }}>DG</th>
+                  <th className="points-col">Pts</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {standings.map((team, idx) => (
+                  <tr key={team.name}>
+                    <td className={idx < 2 ? 'rank-1' : ''} style={{ color: idx < 2 ? '#FFD700' : 'var(--text-muted)' }}>
+                      <div style={{
+                        width: 20, height: 20, borderRadius: '50%',
+                        background: idx < 2 ? 'var(--wc-red)' : 'var(--surface-border)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: '0.7rem', color: '#fff'
+                      }}>
+                        {idx + 1}
+                      </div>
+                    </td>
+                    <td style={{ fontWeight: idx < 2 ? 'bold' : 'normal', color: idx < 2 ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <span className="team-flag">{team.flag}</span>
+                        <span>{team.name}</span>
+                      </div>
+                    </td>
+                    <td style={{ textAlign: 'center' }}>{team.p}</td>
+                    <td style={{ textAlign: 'center' }}>{team.w}</td>
+                    <td style={{ textAlign: 'center' }}>{team.d}</td>
+                    <td style={{ textAlign: 'center' }}>{team.l}</td>
+                    <td style={{ textAlign: 'center' }}>{team.gd > 0 ? `+${team.gd}` : team.gd}</td>
+                    <td className="points-col">{team.pts}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
       </div>
     );
   }
@@ -350,34 +350,34 @@ const Predictions: React.FC = () => {
     <div className="predictions-container">
       {renderTabs()}
       <div className="tab-content glass-card">
-      <div className="predictions-header">
-        {`${totalPredictions}/${totalMatches} pronósticos cargados`}
+        <div className="predictions-header">
+          {`${totalPredictions}/${totalMatches} pronósticos cargados`}
+        </div>
+        <div className="groups-grid">
+          {groups.map((group) => {
+            const predictedInGroup = group.matches.filter(m => m.isPredicted).length;
+            return (
+              <div key={group.id} className="group-card" onClick={() => setSelectedGroup(group.id)}>
+                <div className="group-card-top">
+                  <div className="group-letter">{group.id}</div>
+                  <ChevronRight className="group-arrow" size={20} />
+                </div>
+                <div className="group-teams">
+                  {group.teams.map(team => (
+                    <div key={team.name} className="team-row">
+                      <span className="team-flag">{team.flag}</span>
+                      <span>{team.name}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="group-footer">
+                  {`${predictedInGroup}/${group.matches.length} PARTIDOS`}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
-      <div className="groups-grid">
-        {groups.map((group) => {
-          const predictedInGroup = group.matches.filter(m => m.isPredicted).length;
-          return (
-            <div key={group.id} className="group-card" onClick={() => setSelectedGroup(group.id)}>
-              <div className="group-card-top">
-                <div className="group-letter">{group.id}</div>
-                <ChevronRight className="group-arrow" size={20} />
-              </div>
-              <div className="group-teams">
-                {group.teams.map(team => (
-                  <div key={team.name} className="team-row">
-                    <span className="team-flag">{team.flag}</span>
-                    <span>{team.name}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="group-footer">
-                {`${predictedInGroup}/${group.matches.length} PARTIDOS`}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
     </div>
   );
 };

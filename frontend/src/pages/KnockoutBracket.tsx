@@ -26,15 +26,15 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
       if (scrollWrapperRef.current && centerRef.current) {
         const wrapper = scrollWrapperRef.current;
         const centerEl = centerRef.current;
-        
+
         const wrapperRect = wrapper.getBoundingClientRect();
         const centerRect = centerEl.getBoundingClientRect();
-        
+
         const wrapperCenter = wrapperRect.left + wrapperRect.width / 2;
         const centerElCenter = centerRect.left + centerRect.width / 2;
-        
+
         const diff = centerElCenter - wrapperCenter;
-        
+
         if (Math.abs(diff) > 1) {
           wrapper.scrollLeft += diff;
         }
@@ -44,7 +44,7 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
     observer.observe(containerRef.current);
     const leftSide = containerRef.current.querySelector('.bracket-side.left');
     if (leftSide) observer.observe(leftSide);
-    
+
     return () => observer.disconnect();
   }, [loading]);
 
@@ -201,7 +201,7 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
 
     return (
       <div className="match-node-wrapper" key={order}>
-        <div 
+        <div
           className={`match-card ${isFinal ? 'is-final' : ''}`}
           style={match.finished ? { boxShadow: '0 4px 12px rgba(228, 0, 43, 0.2)', border: '1px solid rgba(228, 0, 43, 0.3)', backgroundColor: 'rgba(228, 0, 43, 0.08)' } : {}}
         >
