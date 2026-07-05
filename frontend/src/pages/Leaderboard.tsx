@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { userService, type UserLeaderboardResponse } from '../services/userService';
 import { roomService, type RoomDTO } from '../services/roomService';
 import { Trophy, Loader2, Users, Plus, LogIn, X, Settings } from 'lucide-react';
@@ -9,6 +9,7 @@ const Leaderboard: React.FC = () => {
   const [selectedRoom, setSelectedRoom] = useState<string>(''); // empty if no room selected
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTable, setActiveTable] = useState<'total' | 'groups' | 'knockout'>('total');
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newRoomName, setNewRoomName] = useState('');
@@ -97,6 +98,14 @@ const Leaderboard: React.FC = () => {
   };
 
   const currentRoom = rooms.find(r => r.code === selectedRoom);
+
+  const sortedLeaderboard = useMemo(() => {
+    return [...leaderboard].sort((a, b) => {
+      if (activeTable === 'groups') return b.groupStagePoints - a.groupStagePoints;
+      if (activeTable === 'knockout') return b.knockoutStagePoints - a.knockoutStagePoints;
+      return b.totalPoints - a.totalPoints;
+    });
+  }, [leaderboard, activeTable]);
 
   return (
     <div className="tab-content glass-card">
@@ -188,6 +197,55 @@ const Leaderboard: React.FC = () => {
 
       {error && <div className="error-message">{error}</div>}
 
+      {/* Table Toggle Selector */}
+      <div className="leaderboard-tabs" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', background: 'rgba(255, 255, 255, 0.05)', padding: '4px', borderRadius: '10px', width: 'fit-content' }}>
+        <button
+          onClick={() => setActiveTable('total')}
+          style={{
+            padding: '0.5rem 1.25rem',
+            borderRadius: '8px',
+            border: 'none',
+            background: activeTable === 'total' ? 'var(--primary)' : 'transparent',
+            color: activeTable === 'total' ? '#fff' : 'var(--text-muted)',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          General
+        </button>
+        <button
+          onClick={() => setActiveTable('groups')}
+          style={{
+            padding: '0.5rem 1.25rem',
+            borderRadius: '8px',
+            border: 'none',
+            background: activeTable === 'groups' ? 'var(--primary)' : 'transparent',
+            color: activeTable === 'groups' ? '#fff' : 'var(--text-muted)',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          Fase de Grupos
+        </button>
+        <button
+          onClick={() => setActiveTable('knockout')}
+          style={{
+            padding: '0.5rem 1.25rem',
+            borderRadius: '8px',
+            border: 'none',
+            background: activeTable === 'knockout' ? 'var(--primary)' : 'transparent',
+            color: activeTable === 'knockout' ? '#fff' : 'var(--text-muted)',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          Fase Eliminatoria
+        </button>
+      </div>
+
       {loading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
           <Loader2 size={32} color="var(--primary)" style={{ animation: 'spin 1s linear infinite' }} />
@@ -208,22 +266,28 @@ const Leaderboard: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {leaderboard.length === 0 ? (
+              {sortedLeaderboard.length === 0 ? (
                 <tr>
                   <td colSpan={3} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem' }}>
                     No hay usuarios en esta tabla de posiciones.
                   </td>
                 </tr>
               ) : (
-                leaderboard.map((user, index) => (
-                  <tr key={user.username}>
-                    <td className={`rank-col ${getRankClass(index)}`}>
-                      #{index + 1}
-                    </td>
-                    <td style={{ fontWeight: 500 }}>{user.username.split('@')[0]}</td>
-                    <td className="points-col">{user.points} pts</td>
-                  </tr>
-                ))
+                sortedLeaderboard.map((user, index) => {
+                  let displayPoints = user.totalPoints;
+                  if (activeTable === 'groups') displayPoints = user.groupStagePoints;
+                  if (activeTable === 'knockout') displayPoints = user.knockoutStagePoints;
+                  
+                  return (
+                    <tr key={user.username}>
+                      <td className={`rank-col ${getRankClass(index)}`}>
+                        #{index + 1}
+                      </td>
+                      <td style={{ fontWeight: 500 }}>{user.username.split('@')[0]}</td>
+                      <td className="points-col">{displayPoints} pts</td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

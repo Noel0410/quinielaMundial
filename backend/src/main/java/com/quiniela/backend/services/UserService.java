@@ -31,8 +31,11 @@ public class UserService {
             users = userRepository.findAll();
         }
 
-        return users.stream().map(user -> new UserLeaderboardResponse(user.getUsername(), user.getTotalPoints()))
-                .sorted((u1, u2) -> u2.points() - u1.points())
-                .collect(Collectors.toList());
+        return users.stream().map(user -> new UserLeaderboardResponse(
+                user.getUsername(),
+                user.getTotalPoints(),
+                user.getGroupStagePoints(),
+                user.getTotalPoints() - user.getGroupStagePoints()
+        )).collect(Collectors.toList());
     }
 }

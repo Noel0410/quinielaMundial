@@ -3,7 +3,9 @@ import { API_ENDPOINTS, COMMON_HEADERS } from '../config/api';
 
 export interface UserLeaderboardResponse {
   username: string;
-  points: number;
+  totalPoints: number;
+  groupStagePoints: number;
+  knockoutStagePoints: number;
 }
 
 export const userService = {
