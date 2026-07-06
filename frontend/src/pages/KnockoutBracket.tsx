@@ -121,21 +121,35 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
 
     const getWinner = (order: number): string | null => {
       const m = matchMap.get(order);
-      if (!m || m.predictedHomeGoals == null || m.predictedAwayGoals == null) return null;
-      if (m.predictedHomeGoals > m.predictedAwayGoals) return m.homeTeamName;
-      if (m.predictedAwayGoals > m.predictedHomeGoals) return m.awayTeamName;
-      if (m.homeTeamAdvances === true) return m.homeTeamName;
-      if (m.homeTeamAdvances === false) return m.awayTeamName;
+      if (!m) return null;
+      if (m.predictedHomeGoals != null && m.predictedAwayGoals != null) {
+        if (m.predictedHomeGoals > m.predictedAwayGoals) return m.homeTeamName;
+        if (m.predictedAwayGoals > m.predictedHomeGoals) return m.awayTeamName;
+        if (m.homeTeamAdvances === true) return m.homeTeamName;
+        if (m.homeTeamAdvances === false) return m.awayTeamName;
+        return null;
+      }
+      const isClosed = m.finished || (m.limitDate && new Date().getTime() > new Date(m.limitDate).getTime());
+      if (isClosed) {
+        return m.homeTeamName;
+      }
       return null;
     };
 
     const getLoser = (order: number): string | null => {
       const m = matchMap.get(order);
-      if (!m || m.predictedHomeGoals == null || m.predictedAwayGoals == null) return null;
-      if (m.predictedHomeGoals < m.predictedAwayGoals) return m.homeTeamName;
-      if (m.predictedAwayGoals < m.predictedHomeGoals) return m.awayTeamName;
-      if (m.homeTeamAdvances === true) return m.awayTeamName;
-      if (m.homeTeamAdvances === false) return m.homeTeamName;
+      if (!m) return null;
+      if (m.predictedHomeGoals != null && m.predictedAwayGoals != null) {
+        if (m.predictedHomeGoals < m.predictedAwayGoals) return m.homeTeamName;
+        if (m.predictedAwayGoals < m.predictedHomeGoals) return m.awayTeamName;
+        if (m.homeTeamAdvances === true) return m.awayTeamName;
+        if (m.homeTeamAdvances === false) return m.homeTeamName;
+        return null;
+      }
+      const isClosed = m.finished || (m.limitDate && new Date().getTime() > new Date(m.limitDate).getTime());
+      if (isClosed) {
+        return m.awayTeamName;
+      }
       return null;
     };
 
