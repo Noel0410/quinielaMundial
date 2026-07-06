@@ -159,8 +159,8 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
       const awayWinner = getWinner(i * 2 + 2);
       const targetMatch = matchMap.get(17 + i);
       if (targetMatch) {
-        if (!targetMatch.homeTeamName && homeWinner) targetMatch.homeTeamName = homeWinner;
-        if (!targetMatch.awayTeamName && awayWinner) targetMatch.awayTeamName = awayWinner;
+        targetMatch.homeTeamName = homeWinner || targetMatch.homeTeamName;
+        targetMatch.awayTeamName = awayWinner || targetMatch.awayTeamName;
       }
     }
 
@@ -170,8 +170,8 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
       const awayWinner = getWinner(18 + i * 2);
       const targetMatch = matchMap.get(25 + i);
       if (targetMatch) {
-        if (!targetMatch.homeTeamName && homeWinner) targetMatch.homeTeamName = homeWinner;
-        if (!targetMatch.awayTeamName && awayWinner) targetMatch.awayTeamName = awayWinner;
+        targetMatch.homeTeamName = homeWinner || targetMatch.homeTeamName;
+        targetMatch.awayTeamName = awayWinner || targetMatch.awayTeamName;
       }
     }
 
@@ -181,8 +181,8 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
       const awayWinner = getWinner(26 + i * 2);
       const targetMatch = matchMap.get(29 + i);
       if (targetMatch) {
-        if (!targetMatch.homeTeamName && homeWinner) targetMatch.homeTeamName = homeWinner;
-        if (!targetMatch.awayTeamName && awayWinner) targetMatch.awayTeamName = awayWinner;
+        targetMatch.homeTeamName = homeWinner || targetMatch.homeTeamName;
+        targetMatch.awayTeamName = awayWinner || targetMatch.awayTeamName;
       }
     }
 
@@ -191,8 +191,8 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
     const thirdPlaceAwayWinner = getLoser(30);
     const thirdPlaceMatch = matchMap.get(31);
     if (thirdPlaceMatch) {
-      if (!thirdPlaceMatch.homeTeamName && thirdPlaceHomeWinner) thirdPlaceMatch.homeTeamName = thirdPlaceHomeWinner;
-      if (!thirdPlaceMatch.awayTeamName && thirdPlaceAwayWinner) thirdPlaceMatch.awayTeamName = thirdPlaceAwayWinner;
+      thirdPlaceMatch.homeTeamName = thirdPlaceHomeWinner || thirdPlaceMatch.homeTeamName;
+      thirdPlaceMatch.awayTeamName = thirdPlaceAwayWinner || thirdPlaceMatch.awayTeamName;
     }
 
     // Propagate Final (Final 32)
@@ -200,8 +200,8 @@ const KnockoutBracket: React.FC<KnockoutBracketProps> = () => {
     const finalAwayWinner = getWinner(30);
     const finalMatch = matchMap.get(32);
     if (finalMatch) {
-      if (!finalMatch.homeTeamName && finalHomeWinner) finalMatch.homeTeamName = finalHomeWinner;
-      if (!finalMatch.awayTeamName && finalAwayWinner) finalMatch.awayTeamName = finalAwayWinner;
+      finalMatch.homeTeamName = finalHomeWinner || finalMatch.homeTeamName;
+      finalMatch.awayTeamName = finalAwayWinner || finalMatch.awayTeamName;
     }
 
     return matchMap;
