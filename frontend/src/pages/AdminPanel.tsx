@@ -229,7 +229,12 @@ const AdminPanel: React.FC = () => {
         <div className="tab-content glass-card" style={{ marginTop: '2rem' }}>
           <div className="detail-header" onClick={() => setSelectedGroup(null)} style={{ cursor: 'pointer' }}>
             <button className="back-btn"><ChevronLeft size={20} /></button>
-            <div className="group-letter" style={{ width: 40, height: 40, fontSize: '1.2rem' }}>{group.id}</div>
+            <div 
+              className={`group-letter ${group.id.length > 1 ? 'stage-badge' : ''}`} 
+              style={group.id.length > 1 ? { minHeight: 40, height: 'auto', fontSize: '1rem', minWidth: 40, width: 'auto', padding: '0 16px' } : { width: 40, height: 40, fontSize: '1.2rem' }}
+            >
+              {group.id}
+            </div>
             <div className="detail-header-info">
               <h2>{group.name}</h2>
               <p>Configurar Límite por Partido</p>
@@ -294,7 +299,7 @@ const AdminPanel: React.FC = () => {
             return (
               <div key={group.id} className="group-card" onClick={() => setSelectedGroup(group.id)}>
                 <div className="group-card-top">
-                  <div className="group-letter">{group.id}</div>
+                  <div className={`group-letter ${group.id.length > 1 ? 'stage-badge' : ''}`}>{group.id}</div>
                   <ChevronRight className="group-arrow" size={20} />
                 </div>
                 <div className="group-teams">
@@ -328,7 +333,12 @@ const AdminPanel: React.FC = () => {
         <div className="tab-content glass-card" style={{ marginTop: '2rem' }}>
           <div className="detail-header" onClick={() => setSelectedGroup(null)} style={{ cursor: 'pointer' }}>
             <button className="back-btn"><ChevronLeft size={20} /></button>
-            <div className="group-letter" style={{ width: 40, height: 40, fontSize: '1.2rem' }}>{group.id}</div>
+            <div 
+              className={`group-letter ${group.id.length > 1 ? 'stage-badge' : ''}`} 
+              style={group.id.length > 1 ? { minHeight: 40, height: 'auto', fontSize: '1rem', minWidth: 40, width: 'auto', padding: '0 16px' } : { width: 40, height: 40, fontSize: '1.2rem' }}
+            >
+              {group.id}
+            </div>
             <div className="detail-header-info">
               <h2>{group.name}</h2>
               <p>Subir Resultados Reales</p>
@@ -414,7 +424,7 @@ const AdminPanel: React.FC = () => {
             return (
               <div key={group.id} className="group-card" onClick={() => setSelectedGroup(group.id)}>
                 <div className="group-card-top">
-                  <div className="group-letter">{group.id}</div>
+                  <div className={`group-letter ${group.id.length > 1 ? 'stage-badge' : ''}`}>{group.id}</div>
                   <ChevronRight className="group-arrow" size={20} />
                 </div>
                 <div className="group-teams">
@@ -437,7 +447,7 @@ const AdminPanel: React.FC = () => {
     <div className="glass-card" style={{ marginTop: '2rem' }}>
       <h2 style={{ marginBottom: '1.5rem', color: 'var(--text-main)' }}>Panel de Administración</h2>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+      <div className="admin-grid">
         <div className="glass-card" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
             <Lock color="var(--primary)" />

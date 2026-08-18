@@ -229,7 +229,12 @@ const Predictions: React.FC = () => {
         <div className="tab-content glass-card">
           <div className="detail-header" onClick={() => setSelectedGroup(null)}>
             <button className="back-btn"><ChevronLeft size={20} /></button>
-            <div className="group-letter" style={{ width: 40, height: 40, fontSize: '1.2rem' }}>{group.id}</div>
+            <div 
+              className={`group-letter ${group.id.length > 1 ? 'stage-badge' : ''}`} 
+              style={group.id.length > 1 ? { minHeight: 40, height: 'auto', fontSize: '1rem', minWidth: 40, width: 'auto', padding: '0 16px' } : { width: 40, height: 40, fontSize: '1.2rem' }}
+            >
+              {group.id}
+            </div>
             <div className="detail-header-info">
               <h2>{group.name}</h2>
               <p>Fase de Grupos</p>
@@ -359,7 +364,7 @@ const Predictions: React.FC = () => {
             return (
               <div key={group.id} className="group-card" onClick={() => setSelectedGroup(group.id)}>
                 <div className="group-card-top">
-                  <div className="group-letter">{group.id}</div>
+                  <div className={`group-letter ${group.id.length > 1 ? 'stage-badge' : ''}`}>{group.id}</div>
                   <ChevronRight className="group-arrow" size={20} />
                 </div>
                 <div className="group-teams">
